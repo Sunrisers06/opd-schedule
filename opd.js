@@ -1,5 +1,9 @@
-const logoUrl = "https://drive.google.com/thumbnail?id=1LxB4prb5ifCjptw89yB6ofwsjhVnBvTg";
-document.getElementById("logoImage").src = logoUrl;
+<img id="logoImage" src="" alt="Logo" width="150" />
+
+<script>
+  const logoUrl = "https://drive.google.com/thumbnail?id=1LxB4prb5ifCjptw89yB6ofwsjhVnBvTg";
+  document.getElementById("logoImage").src = logoUrl;
+</script>
 
 const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSj-0A7VR5P4KJjqjtVlExWVGnldC4c0bTZ_wYpEqbwSpOcH7nCpf6wMM6YZnhlaLLQKgKUEEbHD4nG/pub?output=csv";
 let allData = [];
