@@ -3,7 +3,7 @@ document.getElementById("logoImage").src = logoUrl;
 
 const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSj-0A7VR5P4KJjqjtVlExWVGnldC4c0bTZ_wYpEqbwSpOcH7nCpf6wMM6YZnhlaLLQKgKUEEbHD4nG/pub?output=csv";
 let allData = [];
-const sheetUrl = "https://cors-anywhere.herokuapp.com/https://docs.google.com/spreadsheets/d/e/2PACX-1vSj-0A7VR5P4KJjqjtVlExWVGnldC4c0bTZ_wYpEqbwSpOcH7nCpf6wMM6YZnhlaLLQKgKUEEbHD4nG/pub?gid=1679795149&single=true&output=csv";
+
 function parseCSV(csv){
   return csv
     .trim()
