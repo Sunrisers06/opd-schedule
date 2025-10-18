@@ -1,4 +1,4 @@
-const logoUrl = "https://drive.google.com/uc?export=view&id=1LxB4prb5ifCjptw89yB6ofwsjhVnBvTg";
+const logoUrl = "https://drive.google.com/thumbnail?id=1LxB4prb5ifCjptw89yB6ofwsjhVnBvTg";
 document.getElementById("logoImage").src = logoUrl;
 
 const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSj-0A7VR5P4KJjqjtVlExWVGnldC4c0bTZ_wYpEqbwSpOcH7nCpf6wMM6YZnhlaLLQKgKUEEbHD4nG/pub?output=csv";
