@@ -1146,21 +1146,21 @@ select.fi option { background: var(--surface); color: var(--text); }
     margin-bottom: 6px; border-radius: 8px; overflow: hidden;
   }
   .name-slide {
-    padding: 7px 155px 6px 13px !important; /* Space reserved on right for absolute buttons */
+    padding: 7px 90px 6px 13px !important; /* Space reserved on right for absolute buttons */
     gap: 5px; box-sizing: border-box; width: 100%;
     flex-direction: column; align-items: flex-start;
   }
   
-  /* Move Investor and Chart to Top Right on mobile */
+  /* Move Investor and Chart to Top Right on mobile (Stacked) */
   .card-action-btns { 
     position: absolute !important;
     top: 7px !important;
     right: 8px !important;
-    flex-direction: row !important;
-    align-items: center !important;
+    flex-direction: column !important; /* Stacks them vertically */
+    align-items: stretch !important;   /* Makes them equal width for a clean look */
     order: 0 !important;
     margin: 0 !important;
-    gap: 4px;
+    gap: 6px !important;               /* Gives them breathing room */
   }
   
   .co-stack { width: 100%; min-width: 0; flex: 1 1 100%; box-sizing: border-box; }
