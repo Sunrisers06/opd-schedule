@@ -1173,10 +1173,11 @@ select.fi option { background: var(--surface); color: var(--text); }
 
   .card-action-btns .investor-link-btn, 
   .card-action-btns .chart-c-btn {
-    padding: 5px 10px !important;
-    font-size: 10px !important;
+    padding: 10px 12px !important; /* Doubled vertical padding */
+    min-height: 36px !important;   /* Enforces a much taller touch target */
+    font-size: 11px !important;    /* Slightly larger text for readability */
     justify-content: center;
-    border-radius: 5px;
+    border-radius: 6px;
   }
 
   .inline-scores {
