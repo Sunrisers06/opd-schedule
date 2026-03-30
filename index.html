@@ -76,8 +76,8 @@ body {
 /* Edge mobile full-screen support: when app-container scrolls, 
    allow browser chrome to collapse */
 @media (max-width: 1024px) {
-  html, body { overflow: auto !important; height: auto !important; overscroll-behavior-y: auto !important; min-height: 100vh; }
-  #app-container { overscroll-behavior-y: auto !important; }
+  html, body { overflow: auto !important; height: auto !important; overscroll-behavior-y: none !important; min-height: 100vh; }
+  #app-container { overscroll-behavior-y: none !important; }
 }
 
 body::before {
@@ -4009,6 +4009,32 @@ window.resetAllAppFilters = function() {
   }, true);
 })();
 </script>
+<script>
+/* ══════════════════════════════════════════════════════
+   BLOCK EDGE NATIVE PULL-TO-REFRESH
+══════════════════════════════════════════════════════ */
+(function blockEdgePullToRefresh() {
+  let touchStartY = 0;
 
+  document.addEventListener('touchstart', function(e) {
+    if (e.touches.length === 1) {
+      touchStartY = e.touches[0].clientY;
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchmove', function(e) {
+    if (e.touches.length === 1) {
+      let touchCurrentY = e.touches[0].clientY;
+      let pullingDown = touchCurrentY > touchStartY;
+      
+      // If at the absolute top of the page AND pulling down, kill the event
+      // This stops the browser's native refresh spinner from triggering
+      if ((window.scrollY === 0 || document.documentElement.scrollTop === 0) && pullingDown) {
+        e.preventDefault();
+      }
+    }
+  }, { passive: false }); // passive: false is REQUIRED to use e.preventDefault()
+})();
+</script>
     </body>
 </html>
