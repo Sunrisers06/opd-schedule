@@ -1457,6 +1457,19 @@ select.fi option { background: var(--surface); color: var(--text); }
   #app-container { height: 100dvh; }
 }
 
+/* ── Favorite / Holding Filter Buttons ── */
+.fh-filter-btn {
+  height: 30px; width: 30px; border-radius: 6px;
+  background: var(--surface); border: 1px solid var(--border2);
+  color: var(--text2); cursor: pointer; font-size: 11px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .2s ease; flex-shrink: 0;
+  font-family: 'Lexend', sans-serif; letter-spacing: 0.06em;
+}
+.fh-filter-btn:hover { background: var(--surface2); border-color: var(--text3); color: var(--text); }
+#fav-filter-btn.fh-active  { background: rgba(251,191,36,0.15); border-color: rgba(251,191,36,0.6); color: #fbbf24; box-shadow: 0 0 8px rgba(251,191,36,0.25); }
+#hold-filter-btn.fh-active { background: rgba(34,211,238,0.15); border-color: rgba(34,211,238,0.6); color: #22d3ee; box-shadow: 0 0 8px rgba(34,211,238,0.25); }
+
 /* ── Safe-area insets for notched phones ── */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .main-content { padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
@@ -1582,6 +1595,8 @@ select.fi option { background: var(--surface); color: var(--text); }
       </div>
       
       <div class="top-right">
+        <button class="fh-filter-btn" id="fav-filter-btn" onclick="toggleFHFilter('F')" title="Favorite Tickers">F</button>
+        <button class="fh-filter-btn" id="hold-filter-btn" onclick="toggleFHFilter('H')" title="Holding Tickers">H</button>
         <button class="top-filter-btn" id="top-filter-btn" onclick="toggleTopPanel(event)" title="Top Performers by Return">🏆 Top</button>
         <div class="search-wrap" id="search-wrap">
           <span class="search-icon">⌕</span>
@@ -2305,7 +2320,11 @@ function filterBothNews(forcedQuery = null) {
     }
     
     filteredNewsData     = allNewsData.filter(n => newsMatches(n.text, n.ticker, n.date));
-    filteredInsightsData = allInsightsData.filter(n => newsMatches(n.text, n.ticker, n.tag));
+    // Insights: match ticker field only — not text or tag
+    filteredInsightsData = allInsightsData.filter(n => {
+      const tick = String(n.ticker || '').toLowerCase();
+      return orGroups.some(tokens => tokens.every(tok => tick.startsWith(tok) || tick.includes(tok)));
+    });
   }
   
   currentNewsLimit = NEWS_CHUNK;
@@ -2507,8 +2526,8 @@ function filterPaneSearch(pane) {
     } else {
       const toks = tokenize(q);
       filteredInsightsData = allInsightsData.filter(n => {
-        const words = tokenize(n.text + ' ' + (n.ticker||'') + ' ' + (n.tag||''));
-        return toks.every(tok => words.some(w => w.startsWith(tok) || w.includes(tok)));
+        const tick = String(n.ticker || '').toLowerCase();
+        return toks.every(tok => tick.startsWith(tok) || tick.includes(tok));
       });
     }
     currentInsightsLimit = NEWS_CHUNK;
@@ -3209,6 +3228,11 @@ window.resetAllAppFilters = function() {
     window._topState.active = false;
     updateTopBtnState();
   }
+  // Also clear F/H filter
+  if (window._fhState && window._fhState.active) {
+    window._fhState.active = null;
+    _updateFHBtnState();
+  }
 };
 </script>
 
@@ -3218,6 +3242,179 @@ window.resetAllAppFilters = function() {
             
         
     
+<script>
+/* ══════════════════════════════════════════════════════
+   FAVORITE / HOLDING TICKER FILTER
+══════════════════════════════════════════════════════ */
+(function() {
+  'use strict';
+
+  const FH_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRq_s8CqNXdi3zYnTDkP8YvtZGq79ZmRKwb5jdbplyjUx1GS_KcCwJf7qeV0dVx_K-Xmpxl30QcVFSH/pub?gid=1355107746&single=true&output=csv';
+
+  window._fhState = { active: null }; // null | 'F' | 'H'
+  window._fhTickers = { F: new Set(), H: new Set() };
+  window._fhLoaded  = false;
+  window._fhLoading = false;
+
+  async function loadFHTickers() {
+    if (window._fhLoaded || window._fhLoading) return;
+    window._fhLoading = true;
+    try {
+      const text = await window._smartFetch(FH_CSV_URL);
+      const lines = text.replace(/\r/g, '').trim().split('\n');
+      // Row 0 is header: Favorite, Holding
+      const favSet = new Set(), holdSet = new Set();
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(',');
+        const fav  = String(cols[0] || '').trim().toUpperCase();
+        const hold = String(cols[1] || '').trim().toUpperCase();
+        if (fav)  favSet.add(fav);
+        if (hold) holdSet.add(hold);
+      }
+      window._fhTickers.F = favSet;
+      window._fhTickers.H = holdSet;
+      window._fhLoaded = true;
+      console.log('[SundarX] F/H tickers loaded. Favorites:', favSet.size, 'Holdings:', holdSet.size);
+    } catch(e) {
+      console.warn('[SundarX] Could not load F/H tickers:', e.message);
+    }
+    window._fhLoading = false;
+  }
+
+  function _updateFHBtnState() {
+    const favBtn  = document.getElementById('fav-filter-btn');
+    const holdBtn = document.getElementById('hold-filter-btn');
+    if (!favBtn || !holdBtn) return;
+    favBtn.classList.toggle('fh-active',  window._fhState.active === 'F');
+    holdBtn.classList.toggle('fh-active', window._fhState.active === 'H');
+  }
+  window._updateFHBtnState = _updateFHBtnState;
+
+  window.toggleFHFilter = async function(type) {
+    // Load tickers on first use
+    if (!window._fhLoaded) await loadFHTickers();
+
+    // Toggle: if already active → deactivate, else set to this type
+    window._fhState.active = (window._fhState.active === type) ? null : type;
+    _updateFHBtnState();
+    doFilter();
+  };
+
+  // Hook into doFilter: inject F/H ticker restriction before stock-filter runs
+  // We patch allData access by wrapping doFilter (already double-wrapped for top filter)
+  // Cleanest approach: add _fhFilter() that we call from within the filter predicates.
+  // We monkey-patch by overriding the base filter check.
+
+  // Instead of re-wrapping doFilter (already wrapped), we add a lightweight predicate
+  // that the existing doFilter predicates call. We inject into allData at filter time
+  // by overriding window._fhFilter.
+  window._fhFilter = function(r) {
+    const active = window._fhState.active;
+    if (!active) return true;
+    const ticker = String(r._ticker || '').toUpperCase();
+    return window._fhTickers[active].has(ticker);
+  };
+
+  // Now patch both doFilter variants to respect _fhFilter.
+  // We do this by wrapping doFilter one more time AFTER the top-filter wrap.
+  // We store original and re-wrap.
+  setTimeout(function() {
+    const _prevDoFilter = doFilter;
+    doFilter = function() {
+      // Temporarily filter allData if F/H active
+      const active = window._fhState.active;
+      if (active && window._fhLoaded) {
+        const tickerSet = window._fhTickers[active];
+        const _origAllData = allData;
+        // Swap allData with filtered subset for this call
+        const _filteredAllData = allData.filter(r => tickerSet.has(String(r._ticker || '').toUpperCase()));
+        // Reassign allData temporarily
+        allData = _filteredAllData;
+        _prevDoFilter();
+        allData = _origAllData;
+        // Also filter news in sidebar with all F/H tickers as OR query
+        _filterNewsByFHTickers(active);
+      } else {
+        _prevDoFilter();
+      }
+    };
+
+    // Inject F/H news filtering — filter both news panes to show only F/H tickers
+    function _filterNewsByFHTickers(type) {
+      if (!type || !window._fhLoaded) return;
+      const tickerSet = window._fhTickers[type];
+      if (!tickerSet.size) return;
+      const tickerArr = [...tickerSet];
+
+      // Build OR query for the search box to also sync news
+      // We use the internal filterBothNews with a custom multi-ticker query
+      _fhFilterNews(tickerArr);
+    }
+    window._filterNewsByFHTickers = _filterNewsByFHTickers;
+
+    function _fhFilterNews(tickerArr) {
+      // Build a map of ticker → company name from allData for richer matching
+      const tickerToCoName = {};
+      if (typeof allData !== 'undefined') {
+        allData.forEach(r => {
+          const t = String(r._ticker || '').toUpperCase();
+          if (t) tickerToCoName[t] = String(r._coName || '').toLowerCase();
+        });
+      }
+
+      // For each ticker, also get its cleaned company name tokens
+      // Match logic: "TICKER | Company Name" — same as onCardClick filterBothNews
+      function buildOrQuery(tickers) {
+        return tickers.map(t => {
+          const coName = tickerToCoName[t] || '';
+          return coName ? `${t} | ${coName}` : t;
+        }).join(' | ');
+      }
+
+      // Use the same tokenized OR engine as filterBothNews for consistency
+      const orQuery = buildOrQuery(tickerArr);
+      const orGroups = orQuery.toLowerCase().split('|').map(g => tokenize(g)).filter(g => g.length);
+
+      // Insights: match ticker only (exact ticker set)
+      const tickerSet = new Set(tickerArr);
+      filteredInsightsData = allInsightsData.filter(n => {
+        const nTicker = String(n.ticker || '').trim().toUpperCase();
+        return tickerSet.has(nTicker);
+      });
+      currentInsightsLimit = NEWS_CHUNK;
+      renderInsights();
+
+      // News: match ticker | company name (full OR engine)
+      const newsOrGroups = orGroups; // already built with ticker | coName
+      function newsMatches(text, ticker, extra) {
+        const words = tokenize(text + ' ' + (ticker || '') + ' ' + (extra || ''));
+        return newsOrGroups.some(tokens =>
+          tokens.every(tok => words.some(w => w.startsWith(tok) || w.includes(tok)))
+        );
+      }
+      filteredNewsData = allNewsData.filter(n => newsMatches(n.text, n.ticker, n.date));
+      currentNewsLimit = NEWS_CHUNK;
+      renderGeneralNews();
+    }
+  }, 100); // wait for top-filter wrap to complete
+
+  // Auto-load in background after app unlocks (but non-blocking)
+  const _origLoadAll = window.loadAll;
+  // We hook into loadAll completion by observing app init
+  const _fhObserver = new MutationObserver(function(muts) {
+    for (const m of muts) {
+      if (m.target.id === 'main' && m.target.style.display === 'block') {
+        loadFHTickers();
+        _fhObserver.disconnect();
+        break;
+      }
+    }
+  });
+  const mainEl = document.getElementById('main');
+  if (mainEl) _fhObserver.observe(mainEl, { attributes: true, attributeFilter: ['style'] });
+})();
+</script>
+
 <script>
 /* ══════════════════════════════
    SIDEBAR DRAG-RESIZE
