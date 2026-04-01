@@ -896,7 +896,7 @@ select.fi option { background: var(--surface); color: var(--text); }
   padding: 5px; width: 100%; box-sizing: border-box; gap: 0;
 }
 .metric-cell { 
-  padding: 6px 8px 7px;
+  padding: 6px 8px 9px;
   background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.09);
   border-radius: 7px; margin: 2px; display: flex; flex-direction: column;
   min-width: 0; overflow: hidden; box-sizing: border-box;
@@ -917,68 +917,61 @@ select.fi option { background: var(--surface); color: var(--text); }
 .mc-val.green { color: var(--pop-green); }
 
 /* ══════════════════════════════
-   ZERO-BASELINE CHART SYSTEM 
+   HORIZONTAL PURPLE CHART SYSTEM
 ══════════════════════════════ */
-.chart-wrapper {
-  position: relative;
-  flex: 1;
-  min-height: 48px;
-  margin-top: 6px;
-  margin-bottom: 16px;
-  display: flex;
-  justify-content: space-around;
+.h-chart {
+  display: flex; flex-direction: column; gap: 5px;
+  margin-top: 8px; width: 100%; padding-bottom: 2px;
 }
-.zero-axis {
-  position: absolute;
-  left: -5px; right: -5px;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.25);
-  z-index: 1;
+.h-bar-row {
+  display: flex; align-items: center; gap: 5px;
+  height: 16px;
 }
-.zero-axis::after {
-  content: ''; position: absolute; left: 0; top: 1px;
-  width: 100%; height: 25px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%);
-  pointer-events: none;
+.h-bar-label {
+  font-size: 7.5px; font-family: 'Lexend', sans-serif;
+  color: var(--text3); font-weight: 600;
+  width: 22px; flex-shrink: 0; text-align: right; line-height: 1;
+  letter-spacing: -0.01em;
 }
-.chart-col {
-  position: relative;
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  z-index: 2;
-  cursor: crosshair;
+.h-bar-label.cur { color: #34d399; font-weight: 800; }
+.h-bar-track {
+  flex: 1; background: rgba(255,255,255,0.04);
+  border-radius: 4px; height: 9px; position: relative; overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.07);
 }
-.chart-col:hover .c-bar { filter: brightness(1.2); }
-.c-bar {
-  position: absolute;
-  width: 13px;
-  border-radius: 2px 2px 0 0;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+.h-bar-fill {
+  height: 100%; border-radius: 3px;
+  transition: width 0.55s cubic-bezier(0.4,0,0.2,1);
+  position: absolute; left: 0; top: 0;
 }
-.c-val {
-  position: absolute;
-  font-size: 9px;
-  font-family: 'Lexend', sans-serif;
-  text-align: center;
-  width: 100%;
-  line-height: 1;
-  white-space: nowrap;
+/* Current quarter — vivid */
+.hf-cur-pos {
+  background: linear-gradient(90deg, #059669, #10b981 55%, #34d399);
+  box-shadow: 0 0 10px rgba(16,185,129,0.55), inset 0 1px 0 rgba(255,255,255,0.15);
 }
-.txt-green-bold { color: var(--pop-green); font-weight: 800; text-shadow: 0 0 8px rgba(0,230,118,0.4); }
-.txt-red-bold   { color: var(--pop-red); font-weight: 800; text-shadow: 0 0 8px rgba(255,77,79,0.4); }
-.txt-green      { color: rgba(0, 230, 118, 0.9); font-weight: 600; }
-.txt-red        { color: rgba(255, 77, 79, 0.9); font-weight: 600; }
-.c-lbl {
-  position: absolute;
-  bottom: -15px;
-  font-size: 8px;
-  font-family: 'Lexend', sans-serif;
-  text-align: center;
-  width: 100%;
+.hf-cur-neg {
+  background: linear-gradient(90deg, #9f1239, #f43f5e 60%, #fb7185);
+  box-shadow: 0 0 8px rgba(244,63,94,0.5);
 }
-.lbl-cur { color: var(--text); font-weight: 700; }
-.lbl-mut { color: var(--text2); font-weight: 500;}
+
+/* Previous quarter — full opacity, solid colors */
+.hf-prev-pos { background: linear-gradient(90deg, #047857, #059669); box-shadow: 0 0 6px rgba(16,185,129,0.3); }
+.hf-prev-neg { background: linear-gradient(90deg, #9f1239, #e11d48); box-shadow: 0 0 6px rgba(244,63,94,0.3); }
+/* YoY quarter — full opacity, slightly muted shade */
+.hf-yoy-pos { background: linear-gradient(90deg, #065f46, #047857); box-shadow: 0 0 4px rgba(16,185,129,0.2); }
+.hf-yoy-neg { background: linear-gradient(90deg, #7f1d1d, #9f1239); box-shadow: 0 0 4px rgba(244,63,94,0.2); }
+
+.h-bar-val {
+  font-size: 8px; font-family: 'Lexend', sans-serif; font-weight: 700;
+  width: 30px; flex-shrink: 0; text-align: right; line-height: 1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.hv-cur-pos { color: #34d399; text-shadow: 0 0 8px rgba(52,211,153,0.5); }
+.hv-cur-neg { color: var(--pop-red); text-shadow: 0 0 6px rgba(244,63,94,0.4); }
+.hv-prev-pos { color: #6ee7b7; }
+.hv-prev-neg { color: #fca5a5; }
+.hv-yoy-pos  { color: #a7f3d0; }
+.hv-yoy-neg  { color: #fecaca; }
 
 /* ══════════════════════════════
    DESKTOP CARD BUTTON LAYOUT (> 1024px)
@@ -1406,10 +1399,11 @@ select.fi option { background: var(--surface); color: var(--text); }
 .final-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
 
 /* Chart bar — rounded top for positive, rounded bottom for negative */
-.fill-green-solid { background: linear-gradient(180deg, #00e676, #00b35c); box-shadow: 0 0 8px rgba(0, 230, 118, 0.35); z-index: 3; border-radius: 3px 3px 0 0; }
-.fill-red-solid   { background: linear-gradient(180deg, #ff4d4f, #cc0000); box-shadow: 0 0 8px rgba(255, 77, 79, 0.35); z-index: 3; border-radius: 0 0 3px 3px; }
-.fill-green-muted { background: rgba(0, 230, 118, 0.18); border: 1px solid rgba(0, 230, 118, 0.35); border-radius: 3px 3px 0 0; }
-.fill-red-muted   { background: rgba(255, 77, 79, 0.18); border: 1px solid rgba(255, 77, 79, 0.35); border-radius: 0 0 3px 3px; }
+/* Legacy fill classes (kept for safety, not used by new horizontal chart) */
+.fill-green-solid { background: linear-gradient(180deg, #00e676, #00b35c); }
+.fill-red-solid   { background: linear-gradient(180deg, #ff4d4f, #cc0000); }
+.fill-green-muted { background: rgba(0, 230, 118, 0.18); }
+.fill-red-muted   { background: rgba(255, 77, 79, 0.18); }
 
 /* Metric cell color-coded accent top border based on value */
 .metric-cell:has(.mc-val.green)  { border-top: 2px solid rgba(0, 230, 118, 0.35); }
@@ -2054,48 +2048,48 @@ function clearMainSearch() {
 }
 
 /* ══════════════════════════════════════════════════════
-   ZERO-BASELINE CHART ENGINE
+   HORIZONTAL PURPLE CHART ENGINE
 ══════════════════════════════════════════════════════ */
 function buildZeroBaselineChart(yoyV, prevV, curV, qYoy, qPrev, qCur) {
-  const vals = [parseFloat(yoyV)||0, parseFloat(prevV)||0, parseFloat(curV)||0];
+  const vals   = [parseFloat(yoyV)||0, parseFloat(prevV)||0, parseFloat(curV)||0];
   const labels = [shortQtr(qYoy), shortQtr(qPrev), shortQtr(qCur)];
 
-  let max = Math.max(...vals, 0);
-  let min = Math.min(...vals, 0);
-  if (max === 0 && min === 0) { max = 1; min = -1; }
+  // Scale relative to max absolute value across all 3 bars
+  const maxAbs = Math.max(...vals.map(v => Math.abs(v)), 1);
 
-  const span = max - min;
-  const padPct = 20; 
-  const effSpan = span / (1 - (padPct/100)*2);
-  const zeroPct = padPct + (max / effSpan) * 100;
+  const rows = vals.map((v, i) => {
+    const isCur  = i === 2;
+    const isPrev = i === 1;
+    const isNeg  = v < 0;
 
-  let html = `<div class="chart-wrapper">`;
-  html += `<div class="zero-axis" style="top: ${zeroPct}%;"></div>`;
+    // Minimum visible width so zero-value bars still show a sliver
+    const rawPct = (Math.abs(v) / maxAbs) * 100;
+    const widthPct = rawPct < 2 ? 2 : rawPct;
 
-  html += vals.map((v, i) => {
-    const isCur = i === 2;
-    const isNeg = v < 0;
-    
-    let hPct = (Math.abs(v) / effSpan) * 100;
-    if (hPct < 1.5) hPct = 1.5; 
+    let fillClass, valClass;
+    if (isCur) {
+      fillClass = isNeg ? 'hf-cur-neg'  : 'hf-cur-pos';
+      valClass  = isNeg ? 'hv-cur-neg'  : 'hv-cur-pos';
+    } else if (isPrev) {
+      fillClass = isNeg ? 'hf-prev-neg' : 'hf-prev-pos';
+      valClass  = isNeg ? 'hv-prev-neg' : 'hv-prev-pos';
+    } else {
+      fillClass = isNeg ? 'hf-yoy-neg'  : 'hf-yoy-pos';
+      valClass  = isNeg ? 'hv-yoy-neg'  : 'hv-yoy-pos';
+    }
 
-    let topPct = isNeg ? zeroPct : zeroPct - hPct;
-
-    const fillClass = isCur ? (isNeg ? 'fill-red-solid' : 'fill-green-solid') : (isNeg ? 'fill-red-muted' : 'fill-green-muted');
-    const txtClass = isCur ? (isNeg ? 'txt-red-bold' : 'txt-green-bold') : (isNeg ? 'txt-red' : 'txt-green');
-    const lblClass = isCur ? 'lbl-cur' : 'lbl-mut';
-
+    const lbl = labels[i] || '—';
     return `
-      <div class="chart-col" title="${labels[i]||'—'}: ${fmt(v)}">
-        <div class="c-val ${txtClass}" style="top: calc(${isNeg ? topPct + hPct : topPct}% ${isNeg ? '+ 5px' : '- 16px'});">${fmt(v)}</div>
-        <div class="c-bar ${fillClass}" style="top: ${topPct}%; height: ${hPct}%;"></div>
-        <div class="c-lbl ${lblClass}">${labels[i]||'—'}</div>
-      </div>
-    `;
+      <div class="h-bar-row" title="${lbl}: ${fmt(v)}">
+        <span class="h-bar-label${isCur ? ' cur' : ''}">${lbl}</span>
+        <div class="h-bar-track">
+          <div class="h-bar-fill ${fillClass}" style="width:${widthPct.toFixed(1)}%;"></div>
+        </div>
+        <span class="h-bar-val ${valClass}">${fmt(v)}</span>
+      </div>`;
   }).join('');
 
-  html += `</div>`;
-  return html;
+  return `<div class="h-chart">${rows}</div>`;
 }
 
 let selectedCardTicker = null;
@@ -2680,8 +2674,8 @@ function doFilter() {
     if (!isNaN(minEps)  && (isNaN(r._eps)  || r._eps  < minEps))  return false;
     if (!isNaN(minStr)  && (isNaN(r._str)  || r._str  < minStr))  return false;
     if (!isNaN(minRoce) && (isNaN(r._roce) || r._roce < minRoce)) return false;
-    if (minMasterStr !== 'all') { const mi = grades.indexOf(minMasterStr), vi = grades.indexOf(r._master); if (vi === -1 || vi > mi) return false; }
-    if (minDemandStr !== 'all') { const mi = grades.indexOf(minDemandStr), vi = grades.indexOf(r._demand); if (vi === -1 || vi > mi) return false; }
+    if (minMasterStr !== 'all') { if (!r._master || r._master !== minMasterStr) return false; }
+    if (minDemandStr !== 'all') { if (!r._demand || r._demand !== minDemandStr) return false; }
     // Investor / SuperStar filter
     if (invQ !== 'all' && window.superStarMap) {
       const ssEntries = window.superStarMap[String(r._ticker).toUpperCase()] || [];
