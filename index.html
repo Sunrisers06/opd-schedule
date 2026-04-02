@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
+                <style>.lw { font-size: 60px; font-family: Arial, Helvetica, sans-serif; }</style>
+            <style id="news-font-size-style">
+      #insights-list .news-link, #insights-list .news-text,
+      #news-list .news-link, #news-list .news-text { font-size: 15px !important; }
+      #insights-list .news-date, #news-list .news-date { font-size: 12px !important; }
+    </style></head>
+            <body>
+                
+
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#09090b">
@@ -13,7 +23,7 @@
   <link rel="dns-prefetch" href="https://corsproxy.io">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-  <link rel="stylesheet" as="style" href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="stylesheet" as="style" href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&amp;display=swap" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap"></noscript>
 <style>
 :root {
@@ -175,7 +185,7 @@ body::before {
 /* ── Candlestick Hover Popup ── */
 #csp-hover-popup {
   position: fixed; z-index: 299999; pointer-events: auto;
-  width: min(360px, 94vw);
+  width: min(400px, 94vw);
   background: #ffffff;
   border: 1px solid rgba(0,0,0,0.10);
   border-radius: 10px;
@@ -183,7 +193,6 @@ body::before {
   display: none; flex-direction: column;
   overflow: hidden;
   transition: opacity 0.12s ease;
-  /* Ensure popup stays within viewport */
   max-height: 90vh;
 }
 #csp-hover-popup.csp-visible { display: flex; }
@@ -193,12 +202,13 @@ body::before {
   padding: 7px 10px 6px;
   border-bottom: 1px solid rgba(0,0,0,0.07);
   background: #f8f9fa; flex-shrink: 0;
-  user-select: none;
+  user-select: none; gap: 6px;
+  cursor: grab; touch-action: none;
 }
+#csph-header:active { cursor: grabbing; }
 #csph-title { display: flex; align-items: center; gap: 5px; font-family: 'Lexend',sans-serif; }
 #csph-ticker { font-size: 10.5px; font-weight: 700; color: #0369a1; background: rgba(3,105,161,0.08); border: 1px solid rgba(3,105,161,0.20); padding: 2px 7px; border-radius: 4px; }
 #csph-name   { font-size: 9px; font-weight: 600; color: #6b7280; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-#csph-period { font-size: 8px; color: #9ca3af; font-weight: 500; }
 
 /* Close button for touch devices */
 #csph-close-btn {
@@ -206,8 +216,7 @@ body::before {
   background: none; border: none; cursor: pointer;
   color: #6b7280; font-size: 16px; line-height: 1;
   padding: 2px 4px; border-radius: 4px;
-  transition: background 0.15s, color 0.15s;
-  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s; flex-shrink: 0;
 }
 #csph-close-btn:hover { background: rgba(0,0,0,0.08); color: #374151; }
 
@@ -229,16 +238,61 @@ body::before {
 #csph-canvas-price { display: none; width: 100%; }
 #csph-canvas-vol   { display: none; width: 100%; }
 
+/* ── Period pill selector ── */
+#csph-period-pills {
+  display: flex; gap: 3px; align-items: center; flex-shrink: 0;
+}
+.csph-period-pill {
+  font-size: 8.5px; font-family: 'Lexend', sans-serif; font-weight: 700;
+  padding: 2px 8px; border-radius: 10px; cursor: pointer;
+  border: 1px solid rgba(0,0,0,0.15); background: rgba(0,0,0,0.05);
+  color: #6b7280; transition: all 0.15s; letter-spacing: 0.04em; user-select: none;
+}
+.csph-period-pill:hover { background: rgba(30,110,255,0.1); border-color: rgba(30,110,255,0.35); color: #1e6eff; }
+.csph-period-pill.active {
+  background: #1e6eff; border-color: #1e6eff;
+  color: #fff; box-shadow: 0 0 6px rgba(30,110,255,0.35);
+}
+
 /* Mobile: fixed smaller size — must be visibly smaller than desktop 360px */
 @media(max-width: 600px) {
   #csp-hover-popup { 
-    width: 280px !important;
-    max-width: 280px !important;
-    border-radius: 10px;
+    width: min(360px, 96vw) !important;
+    max-width: min(360px, 96vw) !important;
+    border-radius: 12px;
   }
   #csph-close-btn { display: block; }
   #csph-name { max-width: 90px; }
   #csph-ticker { font-size: 9.5px; }
+  .csph-period-pill { font-size: 7.5px; padding: 2px 7px; }
+}
+
+/* Peer popup mobile — full width, centred, fully visible */
+@media(max-width: 600px) {
+  #peer-popup {
+    position: fixed !important;
+    width: min(420px, 96vw) !important;
+    max-width: 96vw !important;
+    max-height: 88vh !important;
+    overflow-y: auto !important;
+    border-radius: 16px !important;
+    /* No !important on left/top/transform — JS drag must be able to override these */
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+  #peer-octa-wrap { padding: 8px 6px 2px !important; }
+  #peer-octa-svg  { width: 200px !important; height: 200px !important; }
+  #peer-list      { max-height: 180px !important; padding: 4px 10px 10px !important; }
+  #peer-params    { padding: 6px 10px 5px !important; gap: 3px !important; }
+  .peer-param-pill { font-size: 8.5px !important; padding: 4px 8px !important; }
+  #peer-popup-header { padding: 10px 12px 8px !important; }
+  #peer-popup-title  { font-size: 10px !important; }
+  .peer-item { padding: 5px 0 !important; }
+  .peer-name  { font-size: 10px !important; }
+  .peer-val   { font-size: 10px !important; }
+  #peer-count-dec, #peer-count-inc { width: 24px !important; height: 24px !important; font-size: 14px !important; }
+  #peer-count-val { font-size: 12px !important; min-width: 20px !important; }
 }
 
 /* ══════════════════════════════
@@ -793,11 +847,23 @@ select.fi option { background: var(--surface); color: var(--text); }
 .last-upd  { font-size: 11px; color: var(--text3); }
 
 /* ══════════════════════════════
+   FLUID CARDS GRID
+══════════════════════════════ */
+#cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 480px), 1fr));
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  align-items: start;
+}
+
+/* ══════════════════════════════
    STOCK CARD & COLOR INDICATORS
 ══════════════════════════════ */
 .stock-card {
   background: var(--surface); border: 1px solid var(--border2); border-radius: 10px;
-  margin-bottom: 8px; overflow: hidden;
+  margin-bottom: 0; overflow: hidden;
   width: 100%; box-sizing: border-box; min-width: 0; height: auto;
   animation: fadeUp .4s ease both; transition: all .2s ease;
   position: relative; cursor: pointer;
@@ -857,16 +923,16 @@ select.fi option { background: var(--surface); color: var(--text); }
 ══════════════════════════════ */
 .inline-scores { 
   display: flex; align-items: center; justify-content: flex-end; 
-  gap: 4px; flex-shrink: 0; flex-wrap: wrap;
-  margin-left: auto;
+  gap: 3px; flex-shrink: 0; flex-wrap: nowrap;
+  margin-left: auto; overflow: hidden;
 }
 .iscore { 
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  border-radius: 5px; min-width: 36px; width: auto; height: auto; 
-  padding: 3px 7px; box-shadow: 0 1px 4px rgba(0,0,0,0.25); 
-  transition: transform .18s ease, box-shadow .18s ease; flex-shrink: 0;
+  border-radius: 5px; min-width: 32px; width: auto; height: auto; 
+  padding: 3px 5px; box-shadow: 0 1px 4px rgba(0,0,0,0.25); 
+  transition: transform .18s ease, box-shadow .18s ease; flex-shrink: 1;
 }
-.iscore.w-wide { min-width: 46px; width: auto; }
+.iscore.w-wide { min-width: 42px; width: auto; }
 .iscore:hover { transform: translateY(-1px); box-shadow: 0 3px 8px rgba(0,0,0,0.45); }
 .iscore-label { 
   font-size: 7.5px; color: rgba(255,255,255,0.85); text-transform: uppercase; 
@@ -1136,51 +1202,67 @@ select.fi option { background: var(--surface); color: var(--text); }
   /* Stock cards */
   .stock-card {
     width: 100%; box-sizing: border-box;
-    margin-bottom: 6px; border-radius: 8px; overflow: hidden;
+    margin-bottom: 0; border-radius: 8px; overflow: visible;
   }
+  /* Mobile name-slide: grid layout — left column = info, right column = action btns */
   .name-slide {
-    padding: 7px 90px 6px 13px !important; /* Space reserved on right for absolute buttons */
-    gap: 5px; box-sizing: border-box; width: 100%;
-    flex-direction: column; align-items: flex-start;
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    grid-template-rows: auto auto !important;
+    padding: 8px 10px 8px 13px !important;
+    gap: 6px 8px !important;
+    box-sizing: border-box; width: 100%;
+    align-items: start;
   }
-  
-  /* Move Investor and Chart to Top Right on mobile (Stacked) */
-  .card-action-btns { 
-    position: absolute !important;
-    top: 7px !important;
-    right: 8px !important;
-    flex-direction: column !important; /* Stacks them vertically */
-    align-items: stretch !important;   /* Makes them equal width for a clean look */
-    order: 0 !important;
-    margin: 0 !important;
-    gap: 6px !important;               /* Gives them breathing room */
+
+  /* co-stack fills left column, spans both rows' first column */
+  .co-stack {
+    grid-column: 1; grid-row: 1;
+    width: 100%; min-width: 0; box-sizing: border-box;
+    display: flex; flex-direction: column; gap: 4px;
   }
-  
-  .co-stack { width: 100%; min-width: 0; flex: 1 1 100%; box-sizing: border-box; }
+
+  /* inline-scores: full width below co-stack */
+  .inline-scores {
+    grid-column: 1; grid-row: 2;
+    justify-content: flex-start;
+    width: 100%; max-width: 100%; gap: 2px;
+    flex-wrap: nowrap; overflow: hidden;
+    margin-left: 0;
+  }
+
+  /* action btns: right column spanning both rows */
+  .card-action-btns {
+    grid-column: 2; grid-row: 1 / span 2;
+    position: static !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 5px !important;
+    z-index: 20; order: 0; margin: 0;
+    align-self: start;
+  }
+
   .co-name-row { width: 100%; min-width: 0; }
   .co-name { font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
-  
+
   /* Company bottom sub-row */
   .co-sub { flex-direction: row; flex-wrap: nowrap; padding-left: 11px; width: 100%; align-items: center; }
   .co-sub-left { gap: 4px; flex-wrap: wrap; }
 
-  .card-action-btns .investor-link-btn, 
+  .card-action-btns .investor-link-btn,
   .card-action-btns .chart-c-btn {
-    padding: 10px 12px !important; /* Doubled vertical padding */
-    min-height: 36px !important;   /* Enforces a much taller touch target */
-    font-size: 11px !important;    /* Slightly larger text for readability */
+    padding: 8px 10px !important;
+    min-height: 32px !important;
+    font-size: 10px !important;
     justify-content: center;
     border-radius: 6px;
+    white-space: nowrap;
   }
 
-  .inline-scores {
-    justify-content: flex-start; padding-left: 0;
-    width: 100%; flex: 1 1 100%; max-width: 100%; gap: 3px;
-  }
-  .iscore { min-width: 34px; width: auto; padding: 2px 5px; flex-shrink: 0; border-radius: 4px; }
-  .iscore.w-wide { min-width: 42px; }
-  .iscore-label { font-size: 6.5px; }
-  .iscore-val { font-size: 12.5px; }
+  .iscore { min-width: 28px; width: auto; padding: 2px 4px; flex-shrink: 1; border-radius: 4px; }
+  .iscore.w-wide { min-width: 38px; }
+  .iscore-label { font-size: 6px; }
+  .iscore-val { font-size: 11.5px; }
 
   /* Metrics grid */
   .metrics-full {
@@ -1203,27 +1285,25 @@ select.fi option { background: var(--surface); color: var(--text); }
 
 @media(max-width: 480px) {
   .main-content { padding: 4px 4px 16px; }
-  .name-slide { padding: 6px 145px 5px 11px !important; gap: 5px; }
+  .name-slide { padding: 6px 8px 6px 11px !important; gap: 5px 6px !important; }
   .co-name { font-size: 12px; }
-  
-  .card-action-btns { top: 6px !important; right: 6px !important; }
-  
+
   .co-sub { padding-left: 9px; }
   .co-sub-left { gap: 3px; }
   .ticker-tag { font-size: 8px; padding: 1px 4px; }
   .industry-tag { font-size: 8px; padding: 1px 4px; }
-  
-  .card-action-btns .investor-link-btn, 
+
+  .card-action-btns .investor-link-btn,
   .card-action-btns .chart-c-btn {
-    padding: 8px 10px !important;  /* Doubled vertical padding */
-    min-height: 32px !important;   /* Solid touch target for small screens */
-    font-size: 10px !important;
+    padding: 7px 8px !important;
+    min-height: 28px !important;
+    font-size: 9.5px !important;
   }
 
-  .iscore { min-width: 30px; width: auto; padding: 2px 4px; }
-  .iscore.w-wide { min-width: 37px; }
-  .iscore-label { font-size: 6px; }
-  .iscore-val { font-size: 11.5px; }
+  .iscore { min-width: 24px; width: auto; padding: 2px 3px; flex-shrink: 1; }
+  .iscore.w-wide { min-width: 32px; }
+  .iscore-label { font-size: 5.5px; }
+  .iscore-val { font-size: 10.5px; }
   
   .metrics-full { padding: 2px; grid-template-columns: repeat(2, 1fr); }
   .metric-cell { padding: 4px 5px 5px; margin: 2px; }
@@ -1289,7 +1369,12 @@ select.fi option { background: var(--surface); color: var(--text); }
 .ticker-tag { 
   font-size: 9px; font-family: 'Lexend', sans-serif; font-weight: 500; 
   color: #ffffff; background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.2); 
-  padding: 1px 6px; border-radius: 3px; flex-shrink: 0; letter-spacing: 0.04em; 
+  padding: 1px 6px; border-radius: 3px; flex-shrink: 0; letter-spacing: 0.04em;
+  cursor: pointer; transition: all 0.2s;
+}
+.ticker-tag:hover {
+  background: rgba(34,211,238,0.12); border-color: rgba(34,211,238,0.45);
+  color: #22d3ee; box-shadow: 0 0 6px rgba(34,211,238,0.2);
 }
 .industry-tag { 
   font-size: 9px; font-family: 'Lexend', sans-serif; font-weight: 400; 
@@ -1464,6 +1549,115 @@ select.fi option { background: var(--surface); color: var(--text); }
 #fav-filter-btn.fh-active  { background: rgba(251,191,36,0.15); border-color: rgba(251,191,36,0.6); color: #fbbf24; box-shadow: 0 0 8px rgba(251,191,36,0.25); }
 #hold-filter-btn.fh-active { background: rgba(34,211,238,0.15); border-color: rgba(34,211,238,0.6); color: #22d3ee; box-shadow: 0 0 8px rgba(34,211,238,0.25); }
 
+
+/* ══════════════════════════════════════════════════════
+   PEER COMPARISON OCTAGON POPUP
+══════════════════════════════════════════════════════ */
+#peer-popup {
+  position: fixed; z-index: 199999; pointer-events: auto;
+  width: min(340px, 94vw);
+  background: #13131a;
+  border: 1px solid rgba(34,211,238,0.30);
+  border-radius: 14px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.80), 0 0 0 1px rgba(34,211,238,0.08);
+  display: none; flex-direction: column;
+  overflow: hidden;
+  font-family: 'Lexend', sans-serif;
+  animation: fadeUp 0.15s ease;
+}
+#peer-popup.peer-visible { display: flex; }
+#peer-popup-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 12px 7px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  background: rgba(34,211,238,0.06);
+  flex-shrink: 0;
+}
+#peer-popup-header { cursor: grab; user-select: none; touch-action: none; }
+#peer-popup-header:active { cursor: grabbing; }
+#peer-popup-title-wrap { display: flex; align-items: center; gap: 6px; min-width: 0; overflow: hidden; }
+#peer-popup-title {
+  font-size: 9.5px; font-weight: 700; color: #22d3ee;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 160px;
+}
+#peer-popup-count {
+  font-size: 8.5px; font-weight: 700; color: rgba(34,211,238,0.6);
+  background: rgba(34,211,238,0.1); border: 1px solid rgba(34,211,238,0.2);
+  padding: 1px 5px; border-radius: 8px; white-space: nowrap; flex-shrink: 0;
+}
+#peer-popup-close {
+  cursor: pointer; color: var(--text3); font-size: 13px;
+  width: 20px; height: 20px; display: flex; align-items: center;
+  justify-content: center; border-radius: 4px; flex-shrink: 0;
+  transition: all .15s;
+}
+#peer-popup-close:hover { color: var(--text); background: var(--surface3); }
+
+/* Parameter pills */
+#peer-params {
+  display: flex; gap: 4px; padding: 8px 12px 6px; flex-wrap: wrap;
+  background: rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255,255,255,0.05);
+  flex-shrink: 0;
+}
+.peer-param-pill {
+  padding: 3px 9px; border-radius: 20px; font-size: 9px; font-weight: 700;
+  cursor: pointer; transition: all .15s; letter-spacing: 0.04em;
+  border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04);
+  color: var(--text3); white-space: nowrap;
+}
+.peer-param-pill:hover { border-color: rgba(34,211,238,0.5); color: #22d3ee; background: rgba(34,211,238,0.08); }
+.peer-param-pill.active {
+  background: rgba(34,211,238,0.15); border-color: #22d3ee;
+  color: #22d3ee; box-shadow: 0 0 8px rgba(34,211,238,0.25);
+}
+
+/* Octagon chart area */
+#peer-octa-wrap {
+  padding: 10px 12px 4px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+#peer-octa-svg { width: 200px; height: 200px; overflow: visible; }
+
+/* Legend / ranked list */
+#peer-list {
+  padding: 4px 12px 10px; flex: 1; overflow-y: auto;
+  max-height: 200px;
+}
+.peer-item {
+  display: flex; align-items: center; gap: 6px;
+  padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.peer-item:last-child { border-bottom: none; }
+.peer-rank {
+  font-size: 8.5px; font-weight: 800; color: var(--text3);
+  width: 14px; flex-shrink: 0; text-align: center;
+}
+.peer-color-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+}
+.peer-name {
+  font-size: 9.5px; font-weight: 600; color: var(--text2);
+  flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  cursor: pointer; transition: color 0.15s;
+}
+.peer-name:hover { color: #22d3ee; text-decoration: underline; }
+.peer-name.self { color: #22d3ee; }
+.peer-name.self:hover { color: #67e8f9; }
+.peer-val {
+  font-size: 9.5px; font-weight: 700; color: var(--text); flex-shrink: 0;
+}
+.peer-bar-wrap {
+  width: 60px; flex-shrink: 0; height: 5px;
+  background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden;
+}
+.peer-bar-fill {
+  height: 100%; border-radius: 3px;
+  transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+
 /* ── Safe-area insets for notched phones ── */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .main-content { padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
@@ -1472,14 +1666,14 @@ select.fi option { background: var(--surface); color: var(--text); }
 
 
 
-<div id="login-overlay" style="display: flex;">
+<div id="login-overlay" style="display: none;">
   <div class="login-box">
     <div class="login-logo">
       <img src="https://lh3.googleusercontent.com/d/1pPqrvLPPH2Mh9aqjQgG1eAnoziFAxtWg" alt="Terminal Logo" class="logo-img" loading="eager" fetchpriority="high">
     </div>
     <div class="login-title">Secure Terminal Access</div>
     <input type="password" id="pass-input" class="login-input" placeholder="••••" autocomplete="off" autocorrect="off" spellcheck="false">
-    <button class="login-btn" id="login-btn" disabled="">Connecting…</button>
+    <button class="login-btn" id="login-btn">Unlock Terminal</button>
     <div id="login-error" class="login-error">Incorrect Passcode</div>
   </div>
 </div>
@@ -1511,7 +1705,7 @@ select.fi option { background: var(--surface); color: var(--text); }
     <span class="top-panel-label">Show Top N Companies</span>
     <select id="top-n-select" class="top-n-select">
       <option value="5">Top 5</option>
-      <option value="10" selected>Top 10</option>
+      <option value="10" selected="">Top 10</option>
       <option value="15">Top 15</option>
       <option value="20">Top 20</option>
       <option value="25">Top 25</option>
@@ -1524,9 +1718,9 @@ select.fi option { background: var(--surface); color: var(--text); }
   </div>
 </div>
 
-<div id="app-container" style="display: none;">
+<div id="app-container" style="display: flex;">
 
-  <aside class="sidebar" id="news-sidebar">
+  <aside class="sidebar" id="news-sidebar" style="width: 405px;">
 
     <div id="active-company-chip" class="active-company-chip">
       <span>📰 <span id="chip-label">Azad Engineering</span></span>
@@ -1538,12 +1732,12 @@ select.fi option { background: var(--surface); color: var(--text); }
       <button class="sidebar-tab tab-insights active" id="tab-insights-btn" onclick="switchSidebarTab('insights')">
         <span class="tab-dot"></span>
         Insights
-        <span class="tab-count" id="insights-count">1,373</span>
+        <span class="tab-count" id="insights-count">1,417</span>
       </button>
       <button class="sidebar-tab tab-news" id="tab-news-btn" onclick="switchSidebarTab('news')">
         <span class="tab-dot"></span>
         News
-        <span class="tab-count" id="news-count">2,27,049</span>
+        <span class="tab-count" id="news-count">62,070</span>
       </button>
     </div>
     <div class="swipe-dots" id="swipe-dots">
@@ -1582,7 +1776,7 @@ select.fi option { background: var(--surface); color: var(--text); }
 
   <div id="sidebar-resizer" title="Drag to resize"></div>
 
-  <div class="main-wrapper">
+  <div class="main-wrapper" style="width: calc(100% - 410px);">
     <div class="topbar">
       <div class="top-left">
         <button id="nav-news-btn" class="icon-btn action-btn mobile-news-btn" onclick="toggleNewsPanel()">📰 News</button>
@@ -1633,47 +1827,48 @@ select.fi option { background: var(--surface); color: var(--text); }
 
     <main class="main-content">
       <div id="loading" class="loading" style="display: none;"><div class="spinner"></div>Fetching live stock data…</div>
-      <div id="sbox" class="sbox s-info" style="display: none;">⏳ Fetching SuperStar data…</div>
+      <div id="sbox" class="sbox s-info" style="display: none;">⏳ Processing data…</div>
       <div id="main" style="display: block;">
         <div class="summary" id="summary">
     <div class="sum-card sc-total active-sum" onclick="setFilterById('all')">
       <div class="sum-label">Selected<span class="sum-label-sub">(All)</span></div>
-      <div class="sum-val" style="color:var(--text);">—</div>
+      <div class="sum-val" style="color:var(--text);">4623</div>
     </div>
-    <div class="sum-card sc-best" onclick="setFilterById('best')">
-      <div class="sum-label">Best<span class="sum-label-sub">(All >50%)</span></div>
-      <div class="sum-val" style="color:var(--pop-green);">—</div>
+    <div class="sum-card sc-best " onclick="setFilterById('best')">
+      <div class="sum-label">Best<span class="sum-label-sub">(All &gt;50%)</span></div>
+      <div class="sum-val" style="color:var(--pop-green);">437</div>
     </div>
-    <div class="sum-card sc-good" onclick="setFilterById('good')">
-      <div class="sum-label">Good<span class="sum-label-sub">(All >10%)</span></div>
-      <div class="sum-val" style="color:var(--pop-blue);">—</div>
+    <div class="sum-card sc-good " onclick="setFilterById('good')">
+      <div class="sum-label">Good<span class="sum-label-sub">(All &gt;10%)</span></div>
+      <div class="sum-val" style="color:var(--pop-blue);">778</div>
     </div>
-    <div class="sum-card sc-mod" onclick="setFilterById('mod')">
-      <div class="sum-label">Moderate<span class="sum-label-sub">(All >0%)</span></div>
-      <div class="sum-val" style="color:var(--pop-purple);">—</div>
+    <div class="sum-card sc-mod " onclick="setFilterById('mod')">
+      <div class="sum-label">Moderate<span class="sum-label-sub">(All &gt;0%)</span></div>
+      <div class="sum-val" style="color:var(--pop-purple);">447</div>
     </div>
-    <div class="sum-card sc-weak" onclick="setFilterById('weak')">
-      <div class="sum-label">Weak<span class="sum-label-sub">(2+ >0%)</span></div>
-      <div class="sum-val" style="color:var(--pop-orange);">—</div>
+    <div class="sum-card sc-weak " onclick="setFilterById('weak')">
+      <div class="sum-label">Weak<span class="sum-label-sub">(2+ &gt;0%)</span></div>
+      <div class="sum-val" style="color:var(--pop-orange);">1291</div>
     </div>
-    <div class="sum-card sc-vweak" onclick="setFilterById('vweak')">
+    <div class="sum-card sc-vweak " onclick="setFilterById('vweak')">
       <div class="sum-label">Very Weak<span class="sum-label-sub">(Others)</span></div>
-      <div class="sum-val" style="color:var(--pop-red);">—</div>
+      <div class="sum-val" style="color:var(--pop-red);">1670</div>
     </div></div>
         <div class="meta-row">
           <div class="meta-left" id="result-count">Showing 100 of 4623 companies</div>
-          <div class="last-upd" id="last-upd">Updated: 28 Mar 2026, 7:20 pm</div>
-        <div id="cards"></div>
+          <div class="last-upd" id="last-upd">Updated: 1 Apr 2026, 11:38 am</div>
+        <div id="cards">
+</div>
         <div id="load-more-container" class="load-more-container" style="display: block;">
           <button id="load-more-btn" class="load-more-btn" onclick="loadMore()">Load Next 100 Results</button>
         </div>
         <div class="no-results" id="no-res" style="display: none;">No companies match the current filters.</div>
       </div>
-    </main>
+    </div></main>
   </div>
 </div>
 
-<button id="scroll-to-top" onclick="scrollToTop()" title="Go to top">↑</button>
+<button id="scroll-to-top" onclick="scrollToTop()" title="Go to top" class="visible">↑</button>
 
 <script>
 /* ══════════════════════════════════════════════════════
@@ -2045,6 +2240,12 @@ function clearMainSearch() {
   if (wrap) wrap.classList.remove('mob-expanded');
   // Re-filter without touching any other filters
   doFilter();
+  // If peer popup was open, rebuild it with the restored (full) filter set
+  const peerPopup = document.getElementById('peer-popup');
+  if (peerPopup && peerPopup.style.display !== 'none' && typeof window._peerRebuildPeers === 'function') {
+    window._peerRebuildPeers();
+    window._peerPinned = true; // keep it open
+  }
 }
 
 /* ══════════════════════════════════════════════════════
@@ -2166,7 +2367,7 @@ return `
         </div>
         <div class="co-sub">
           <div class="co-sub-left">
-            <span class="ticker-tag">${r._ticker}</span>
+            <span class="ticker-tag" onmouseenter="showPeerChart(event,'${r._ticker}','${r._ind}')" onmouseleave="schedulePeerClose()" style="cursor:pointer;">${r._ticker}</span>
             ${r._ind?`<span class="industry-tag" onclick="setIndustryFilter('${escHtml(r._ind)}', event)">${r._ind}</span>`:''}
             ${ssBadge}
             ${topRankBadge}
@@ -2174,7 +2375,7 @@ return `
         </div>
       </div>
       <div class="inline-scores">
-        ${r._mcap?`<div class="iscore w-wide ${getChipColor('Market Cap',r._mcap)}"><span class="iscore-label">Mcap</span><span class="iscore-val">${fmtMcap(r._mcap)}</span></div>`:''}
+        ${r._mcap?`<div class="iscore w-wide ${getChipColor('Market Cap',r._mcap)}" onmouseenter="showPeerChart(event,'${r._ticker}','${r._ind}')" onmouseleave="schedulePeerClose()" onclick="event.stopPropagation();showPeerChart(event,'${r._ticker}','${r._ind}')" ontouchstart="event.stopPropagation();showPeerChart(event,'${r._ticker}','${r._ind}')" style="cursor:pointer;" title="View Peer Comparison"><span class="iscore-label">Mcap</span><span class="iscore-val">${fmtMcap(r._mcap)}</span></div>`:''}
         ${r['Trendlyne Durability Score']?`<div class="iscore ${getChipColor('Durability',r['Trendlyne Durability Score'])}"><span class="iscore-label">Dur.</span><span class="iscore-val">${fmtWhole(r['Trendlyne Durability Score'])}</span></div>`:''}
         ${r['EPS Rank']?`<div class="iscore ${getChipColor('EPS Rank',r['EPS Rank'])}"><span class="iscore-label">EPS R</span><span class="iscore-val">${fmtWhole(r['EPS Rank'])}</span></div>`:''}
         ${r['Master Score']?`<div class="iscore ${getChipColor('Master Score',r['Master Score'])}"><span class="iscore-label">MS</span><span class="iscore-val">${r['Master Score']}</span></div>`:''}
@@ -2244,21 +2445,31 @@ return `
   }
 
   function _hide() {
-    if (!_pop) return;
-    _pop.style.display = 'none';
+    if (_pop) {
+      _pop.style.display = 'none';
+    }
     _popTicker = null;
-    _popBtn = null;
+    _popBtn    = null;
+    if (_closeRaf) { cancelAnimationFrame(_closeRaf); _closeRaf = null; }
   }
 
   /* ── public API ── */
-  window.showInvestorPopup   = (e, t) => { e.stopPropagation(); _popTicker === t ? _hide() : _show(e.currentTarget, t); };
-  window.closeInvestorPopup  = ()      => { _hide(); };
+  window.showInvestorPopup  = (e, t) => {
+    e.stopPropagation();
+    if (_popTicker === t) { _hide(); return; }   // toggle off same badge
+    _show(e.currentTarget, t);
+  };
+  window.closeInvestorPopup = () => { _hide(); };
 
-  document.addEventListener('click', e => {
-    if (_pop && _pop.style.display !== 'none' &&
-        !_pop.contains(e.target) &&
-        !e.target.classList.contains('superstar-badge')) _hide();
-  }, true);
+  /* Close on outside click (desktop) or touch (mobile) */
+  function _outsideClose(e) {
+    if (!_pop || _pop.style.display === 'none') return;
+    if (_pop.contains(e.target)) return;
+    if (e.target.classList.contains('superstar-badge')) return;
+    _hide();
+  }
+  document.addEventListener('click',      _outsideClose, true);
+  document.addEventListener('touchstart', _outsideClose, { capture: true, passive: true });
 }
 
 function buildSummary(data) {
@@ -2719,6 +2930,7 @@ function doFilter() {
   if (globalBtn) globalBtn.style.display = isIndFiltered ? 'flex' : 'none';
 
   currentFilteredData = final;
+  window.currentFilteredData = final; // expose for peer filter
   currentRenderLimit  = RENDER_CHUNK;
   renderCards();
 }
@@ -2943,6 +3155,7 @@ async function loadAll() {
     indexDataMap = processIndices(idx);
     
     allData = mergeAndPrecalc(ms, tl, res, tickerToName);
+    window._peerAllData = allData; // expose for peer comparison popup
     
     // Calculate returns from OHLCV close prices (OHLCV already injected above)
     calcOHLCVReturns();
@@ -3323,9 +3536,9 @@ window.resetAllAppFilters = function() {
         // Swap allData with filtered subset for this call
         const _filteredAllData = allData.filter(r => tickerSet.has(String(r._ticker || '').toUpperCase()));
         // Reassign allData temporarily
-        allData = _filteredAllData;
+        allData = _filteredAllData; window._peerAllData = allData;
         _prevDoFilter();
-        allData = _origAllData;
+        allData = _origAllData; window._peerAllData = allData;
         // Also filter news in sidebar with all F/H tickers as OR query
         _filterNewsByFHTickers(active);
       } else {
@@ -3503,9 +3716,13 @@ window.resetAllAppFilters = function() {
     <div id="csph-title">
       <span id="csph-ticker">OBSCP</span>
       <span id="csph-name">OBSC Perfection</span>
-      <span id="csph-period">· 6M</span>
     </div>
-    <button id="csph-close-btn" onclick="document.getElementById('csp-hover-popup').classList.remove('csp-visible')" title="Close">✕</button>
+    <div id="csph-period-pills">
+      <span class="csph-period-pill active" data-period="6m" onclick="setCandlePeriod('6m',this)">6M</span>
+      <span class="csph-period-pill" data-period="1y" onclick="setCandlePeriod('1y',this)">1Y</span>
+      <span class="csph-period-pill" data-period="2y" onclick="setCandlePeriod('2y',this)">2Y</span>
+    </div>
+    <button id="csph-close-btn" data-nodrag onclick="document.getElementById('csp-hover-popup').classList.remove('csp-visible')" title="Close">✕</button>
   </div>
 
   <div id="csph-body">
@@ -3536,6 +3753,7 @@ window.resetAllAppFilters = function() {
   let _fetchP      = null;   // in-flight Promise
   let _closeTimer  = null;
   let _currentTick = null;
+  let _currentPeriod = '6m'; // '6m' | '1y'
   let _canvasCache = {};     // ticker → {priceImgData, volImgData, W, PH, VH} — instant redraw
 
   // Allow loadAll() to inject already-fetched OHLCV text → instant index, no re-fetch needed
@@ -3705,23 +3923,25 @@ window.resetAllAppFilters = function() {
     const PH_est = pop.offsetHeight || 290;
     const GAP = 6;
 
-    // Both mobile and desktop: position near the trigger button
-    let left = rect.left;
-    let top  = rect.bottom + GAP;
+    let left, top;
 
-    // Clamp horizontal — keep within viewport
-    if (left + PW > vw - 6) left = vw - PW - 6;
-    if (left < 6) left = 6;
-
-    // Flip above if popup would overflow bottom
-    if (top + PH_est > vh - 6 && rect.top - PH_est - GAP > 0) {
-      top = rect.top - PH_est - GAP;
+    if (vw <= 600) {
+      // Mobile: always center
+      left = Math.max(6, Math.round((vw - PW) / 2));
+      top  = Math.max(6, Math.round((vh - PH_est) / 2));
+    } else {
+      // Desktop: position near the trigger button
+      left = rect.left;
+      top  = rect.bottom + GAP;
+      if (left + PW > vw - 6) left = vw - PW - 6;
+      if (left < 6) left = 6;
+      if (top + PH_est > vh - 6 && rect.top - PH_est - GAP > 0) top = rect.top - PH_est - GAP;
+      if (top < 6) top = 6;
     }
-    // Final vertical clamp
-    if (top < 6) top = 6;
 
-    pop.style.left = left + 'px';
-    pop.style.top  = top  + 'px';
+    pop.style.left      = left + 'px';
+    pop.style.top       = top  + 'px';
+    pop.style.transform = 'none';
   }
 
   /* ─── Draw chart — MarketSmith-style (matches screenshot) ─── */
@@ -3739,18 +3959,19 @@ window.resetAllAppFilters = function() {
       return;
     }
 
-    // ── Compute MAs on FULL history, then slice to 6M for display ──
+    // ── Compute MAs on FULL history, then slice to selected period for display ──
     const closes  = allRaw.map(r => r.close);
     const s10full = sma(closes, 10);
     const s40full = sma(closes, 40);
 
-    const cutoff  = new Date(); cutoff.setMonth(cutoff.getMonth() - 6);
+    const months  = _currentPeriod === '2y' ? 24 : _currentPeriod === '1y' ? 12 : 6;
+    const cutoff  = new Date(); cutoff.setMonth(cutoff.getMonth() - months);
     const cutTs   = cutoff.getTime();
-    // Find first index inside 6M window
+    // Find first index inside window
     let startIdx = 0;
     while (startIdx < allRaw.length && allRaw[startIdx].date.getTime() < cutTs) startIdx++;
 
-    // Display slice (6M) with attached MA values
+    // Display slice with attached MA values
     const raw = allRaw.slice(startIdx).map((r, i) => ({
       ...r,
       ma10: s10full[startIdx + i],
@@ -3758,7 +3979,7 @@ window.resetAllAppFilters = function() {
     }));
 
     if (!raw.length) {
-      loadEl.innerHTML = '<span style="color:#f43f5e;font-size:11px;">No 6M data for ' + ticker + '</span>';
+      loadEl.innerHTML = '<span style="color:#f43f5e;font-size:11px;">No ' + _currentPeriod.toUpperCase() + ' data for ' + ticker + '</span>';
       loadEl.style.display = 'flex'; pCv.style.display = 'none'; vCv.style.display = 'none';
       return;
     }
@@ -3766,10 +3987,11 @@ window.resetAllAppFilters = function() {
     loadEl.style.display = 'none'; pCv.style.display = 'block'; vCv.style.display = 'block';
 
     const isMobile = window.innerWidth < 600;
-    // Mobile popup is fixed 280px wide; desktop popup is 360px wide
-    const W    = isMobile ? 280 : 360;
-    const PH   = isMobile ? 160 : 220;
-    const VH   = isMobile ? 44  : 60;
+    // Full popup width; price chart uses 16:9-ish ratio, volume ~1/5 of price height
+    const popupEl = document.getElementById('csp-hover-popup');
+    const W  = popupEl ? (popupEl.offsetWidth || (isMobile ? 300 : 380)) : (isMobile ? 300 : 380);
+    const PH = Math.round(W * 0.62);   // ~8:5 ratio — taller, more chart real-estate
+    const VH = Math.round(W * 0.14);   // volume panel ~14% of width
     const DPR  = Math.min(window.devicePixelRatio || 1, 2);
 
     pCv.style.width = W+'px'; pCv.style.height = PH+'px'; pCv.width = W*DPR; pCv.height = PH*DPR;
@@ -3802,7 +4024,7 @@ window.resetAllAppFilters = function() {
     const toX = i => PP.l + (i + 0.5) * (pW / n);
     const bW  = Math.max(1.2, pW / n * 0.55);
 
-    // Background
+    // Background — original white
     pc.fillStyle = '#ffffff'; pc.fillRect(0, 0, W, PH);
 
     // ── Horizontal dashed grid lines with RIGHT-aligned price labels ──
@@ -3945,8 +4167,8 @@ window.resetAllAppFilters = function() {
     vc.fillText(fmtV(maxV),       W - 2, VP.t + 4);
     vc.fillText(fmtV(maxV * 0.5), W - 2, VP.t + vH2 * 0.5);
 
-    // "WEEKLY" badge bottom-right of volume panel
-    const badgeTxt = 'WEEKLY';
+    // "PERIOD" badge bottom-right of volume panel
+    const badgeTxt = _currentPeriod.toUpperCase();
     vc.font = 'bold 7px "Lexend",monospace';
     const bw = vc.measureText(badgeTxt).width + 6;
     const bx = W - bw - 2, by = VH - VP.b;
@@ -4003,6 +4225,21 @@ window.resetAllAppFilters = function() {
       });
   };
 
+  /* ─── Public: switch period ─── */
+  window.setCandlePeriod = function(period, el) {
+    if (_currentPeriod === period) return;
+    _currentPeriod = period;
+    // Update pill UI
+    document.querySelectorAll('.csph-period-pill').forEach(p => {
+      p.classList.toggle('active', p.dataset.period === period);
+    });
+    // Invalidate canvas cache for current ticker so it redraws
+    if (_currentTick) {
+      delete _canvasCache[_currentTick + '_' + (period === '6m' ? '1y' : '6m')];
+      drawChart(_currentTick);
+    }
+  };
+
   window.scheduleCandleClose = function() {
     _closeTimer = setTimeout(() => {
       document.getElementById('csp-hover-popup').classList.remove('csp-visible');
@@ -4020,6 +4257,21 @@ window.resetAllAppFilters = function() {
   } else {
     prefetch(); // Already loaded — fire instantly
   }
+
+  /* ── Wire candlestick popup drag (mouse + touch, desktop + mobile) ── */
+  (function wireCspDrag() {
+    function init() {
+      const el  = document.getElementById('csp-hover-popup');
+      const hdr = document.getElementById('csph-header');
+      if (!el || !hdr || el._dragWired) return;
+      el._dragWired = true;
+      if (typeof window._makeDraggable === 'function') {
+        window._makeDraggable(el, hdr);
+      }
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+  })();
 
 })();
 </script>
@@ -4169,6 +4421,78 @@ window.resetAllAppFilters = function() {
 </script>
 
 <!-- Superstar name tooltip — lives on body so overflow:hidden on cards can't clip it -->
+
+<!-- ══ PEER COMPARISON POPUP ══ -->
+<div id="peer-popup" onmouseenter="cancelPeerClose()" onmouseleave="schedulePeerClose()" style="display: none; left: 27.9048px; top: 151.084px;" class="">
+  <div id="peer-popup-header" title="Drag to move" style="cursor: grab;">
+    <div id="peer-popup-title-wrap">
+      <span id="peer-popup-title">◈ Real Estate Dvlpmt/Ops</span>
+      <span id="peer-popup-count">132 co.</span>
+    </div>
+    <span id="peer-popup-close" data-nodrag onclick="closePeerPopup()">✕</span>
+  </div>
+  <div id="peer-params">
+    <span class="peer-param-pill active" data-param="mcap">Mkt Cap</span>
+    <span class="peer-param-pill" data-param="eps">EPS Rank</span>
+    <span class="peer-param-pill" data-param="rs">Rel Str</span>
+    <span class="peer-param-pill" data-param="dur">Durability</span>
+    <span class="peer-param-pill" data-param="val">Valuation</span>
+    <span class="peer-param-pill" data-param="roce">ROCE %</span>
+  </div>
+  <div id="peer-octa-wrap">
+    <svg id="peer-octa-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><polygon points="100.00,74.50 118.03,81.97 125.50,100.00 118.03,118.03 100.00,125.50 81.97,118.03 74.50,100.00 81.97,81.97" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.8"></polygon><polygon points="100.00,57.00 130.41,69.59 143.00,100.00 130.41,130.41 100.00,143.00 69.59,130.41 57.00,100.00 69.59,69.59" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.8"></polygon><polygon points="100.00,39.50 142.78,57.22 160.50,100.00 142.78,142.78 100.00,160.50 57.22,142.78 39.50,100.00 57.22,57.22" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.8"></polygon><polygon points="100.00,22.00 155.15,44.85 178.00,100.00 155.15,155.15 100.00,178.00 44.85,155.15 22.00,100.00 44.85,44.85" fill="none" stroke="rgba(34,211,238,0.22)" stroke-width="1.2"></polygon><line x1="100" y1="100" x2="100.00" y2="22.00" stroke="rgba(255,255,255,0.09)" stroke-width="0.8"></line><text x="100.00" y="8.00" text-anchor="middle" dominant-baseline="middle" font-family="Lexend,sans-serif" font-size="7" font-weight="500" fill="rgba(255,255,255,0.40)">ADANIPO</text><line x1="100" y1="100" x2="155.15" y2="44.85" stroke="rgba(255,255,255,0.09)" stroke-width="0.8"></line><text x="165.05" y="34.95" text-anchor="start" dominant-baseline="middle" font-family="Lexend,sans-serif" font-size="7" font-weight="500" fill="rgba(255,255,255,0.40)">DLF</text><line x1="100" y1="100" x2="178.00" y2="100.00" stroke="rgba(255,255,255,0.09)" stroke-width="0.8"></line><text x="192.00" y="100.00" text-anchor="start" dominant-baseline="middle" font-family="Lexend,sans-serif" font-size="7" font-weight="500" fill="rgba(255,255,255,0.40)">LODHA</text><line x1="100" y1="100" x2="155.15" y2="155.15" stroke="rgba(255,255,255,0.09)" stroke-width="0.8"></line><text x="165.05" y="165.05" text-anchor="start" dominant-baseline="middle" font-family="Lexend,sans-serif" font-size="7" font-weight="500" fill="rgba(255,255,255,0.40)">PHOENIX</text><line x1="100" y1="100" x2="100.00" y2="178.00" stroke="rgba(255,255,255,0.09)" stroke-width="0.8"></line><text x="100.00" y="192.00" text-anchor="middle" dominant-baseline="middle" font-family="Lexend,sans-serif" font-size="7" font-weight="500" fill="rgba(255,255,255,0.40)">PRESTIG</text><line x1="100" y1="100" x2="44.85" y2="155.15" stroke="rgba(255,255,255,0.09)" stroke-width="0.8"></line><text x="34.95" y="165.05" text-anchor="end" dominant-baseline="middle" font-family="Lexend,sans-serif" font-size="7" font-weight="500" fill="rgba(255,255,255,0.40)">OBEROIR</text><line x1="100" y1="100" x2="22.00" y2="100.00" stroke="rgba(255,255,255,0.09)" stroke-width="0.8"></line><text x="8.00" y="100.00" text-anchor="end" dominant-baseline="middle" font-family="Lexend,sans-serif" font-size="7" font-weight="500" fill="rgba(255,255,255,0.40)">KRT</text><line x1="100" y1="100" x2="44.85" y2="44.85" stroke="rgba(255,255,255,0.09)" stroke-width="0.8"></line><text x="34.95" y="34.95" text-anchor="end" dominant-baseline="middle" font-family="Lexend,sans-serif" font-size="7" font-weight="700" fill="#22d3ee">539533</text><polygon points="100.00,22.00 126.72,73.28 125.71,100.00 114.34,114.34 100.00,119.96 86.07,113.93 80.45,100.00 91.87,91.87" fill="rgba(34,211,238,0.10)" stroke="rgba(34,211,238,0.65)" stroke-width="1.5" stroke-linejoin="round"></polygon><circle cx="100.00" cy="22.00" r="4.5" fill="#3b82f6" stroke="#13131a" stroke-width="1.5"></circle><circle cx="126.72" cy="73.28" r="4.5" fill="#10b981" stroke="#13131a" stroke-width="1.5"></circle><circle cx="125.71" cy="100.00" r="4.5" fill="#f97316" stroke="#13131a" stroke-width="1.5"></circle><circle cx="114.34" cy="114.34" r="4.5" fill="#f43f5e" stroke="#13131a" stroke-width="1.5"></circle><circle cx="100.00" cy="119.96" r="4.5" fill="#eab308" stroke="#13131a" stroke-width="1.5"></circle><circle cx="86.07" cy="113.93" r="4.5" fill="#ec4899" stroke="#13131a" stroke-width="1.5"></circle><circle cx="80.45" cy="100.00" r="4.5" fill="#a78bfa" stroke="#13131a" stroke-width="1.5"></circle><circle cx="91.87" cy="91.87" r="10" fill="#22d3ee" opacity="0.18"></circle><circle cx="91.87" cy="91.87" r="6.5" fill="#22d3ee" stroke="#13131a" stroke-width="1.5"></circle></svg>
+  </div>
+  <div id="peer-list"><div class="peer-item">
+        <span class="peer-rank">1</span>
+        <span class="peer-color-dot" style="background:#3b82f6"></span>
+        <span class="peer-name" title="Click to filter: Adani Ports and Special Economic Zone" onclick="(function(e){e.stopPropagation();_peerFilterByTicker('ADANIPORTS');})(event)">Adani Ports and Spec</span>
+        <div class="peer-bar-wrap"><div class="peer-bar-fill" style="width:100.0%;background:#3b82f6"></div></div>
+        <span class="peer-val">3.1L</span>
+      </div><div class="peer-item">
+        <span class="peer-rank">2</span>
+        <span class="peer-color-dot" style="background:#10b981"></span>
+        <span class="peer-name" title="Click to filter: DLF" onclick="(function(e){e.stopPropagation();_peerFilterByTicker('DLF');})(event)">DLF</span>
+        <div class="peer-bar-wrap"><div class="peer-bar-fill" style="width:42.5%;background:#10b981"></div></div>
+        <span class="peer-val">1.3L</span>
+      </div><div class="peer-item">
+        <span class="peer-rank">3</span>
+        <span class="peer-color-dot" style="background:#f97316"></span>
+        <span class="peer-name" title="Click to filter: Lodha Developers" onclick="(function(e){e.stopPropagation();_peerFilterByTicker('LODHA');})(event)">Lodha Developers</span>
+        <div class="peer-bar-wrap"><div class="peer-bar-fill" style="width:25.3%;background:#f97316"></div></div>
+        <span class="peer-val">79.6K</span>
+      </div><div class="peer-item">
+        <span class="peer-rank">4</span>
+        <span class="peer-color-dot" style="background:#f43f5e"></span>
+        <span class="peer-name" title="Click to filter: The Phoenix Mills" onclick="(function(e){e.stopPropagation();_peerFilterByTicker('PHOENIXLTD');})(event)">The Phoenix Mills</span>
+        <div class="peer-bar-wrap"><div class="peer-bar-fill" style="width:17.5%;background:#f43f5e"></div></div>
+        <span class="peer-val">55.2K</span>
+      </div><div class="peer-item">
+        <span class="peer-rank">5</span>
+        <span class="peer-color-dot" style="background:#eab308"></span>
+        <span class="peer-name" title="Click to filter: Prestige Estates Projects" onclick="(function(e){e.stopPropagation();_peerFilterByTicker('PRESTIGE');})(event)">Prestige Estates Pro</span>
+        <div class="peer-bar-wrap"><div class="peer-bar-fill" style="width:17.1%;background:#eab308"></div></div>
+        <span class="peer-val">53.8K</span>
+      </div><div class="peer-item">
+        <span class="peer-rank">6</span>
+        <span class="peer-color-dot" style="background:#ec4899"></span>
+        <span class="peer-name" title="Click to filter: Oberoi Realty" onclick="(function(e){e.stopPropagation();_peerFilterByTicker('OBEROIRLTY');})(event)">Oberoi Realty</span>
+        <div class="peer-bar-wrap"><div class="peer-bar-fill" style="width:16.7%;background:#ec4899"></div></div>
+        <span class="peer-val">52.6K</span>
+      </div><div class="peer-item">
+        <span class="peer-rank">7</span>
+        <span class="peer-color-dot" style="background:#a78bfa"></span>
+        <span class="peer-name" title="Click to filter: Knowledge Realty" onclick="(function(e){e.stopPropagation();_peerFilterByTicker('KRT');})(event)">Knowledge Realty</span>
+        <div class="peer-bar-wrap"><div class="peer-bar-fill" style="width:16.5%;background:#a78bfa"></div></div>
+        <span class="peer-val">51.9K</span>
+      </div><div class="peer-item">
+        <span class="peer-rank">8</span>
+        <span class="peer-color-dot" style="background:#22d3ee"></span>
+        <span class="peer-name self" title="Click to filter: ELITECON INTERNATIONAL" onclick="(function(e){e.stopPropagation();_peerFilterByTicker('539533');})(event)">ELITECON INTERNATION ★</span>
+        <div class="peer-bar-wrap"><div class="peer-bar-fill" style="width:3.0%;background:#22d3ee"></div></div>
+        <span class="peer-val">8.2K</span>
+      </div></div>
+</div>
+
 <div id="ss-tip" style="
   position:fixed;z-index:2147483647;pointer-events:none;
   display:none;
@@ -4202,6 +4526,395 @@ window.resetAllAppFilters = function() {
   }, true);
 })();
 </script>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   SHARED DRAG UTILITY — works on both mouse and touch,
+   desktop and mobile. Call once per popup element.
+   _makeDraggable(popupEl, handleEl, onDragStartCb)
+══════════════════════════════════════════════════════ */
+window._makeDraggable = function(el, hdr, onDragStart) {
+  if (!el || !hdr) return;
+  hdr.style.cursor     = 'grab';
+  hdr.style.touchAction = 'none'; // tell browser: this element owns the touch, no scroll
+
+  // Capture the element's true rendered top-left (works even with CSS translate)
+  // and lock in explicit left/top so transform no longer applies.
+  function _anchorAndMove(nx, ny) {
+    const maxX = window.innerWidth  - el.offsetWidth;
+    const maxY = window.innerHeight - el.offsetHeight;
+    el.style.transform = 'none';
+    el.style.left = Math.max(0, Math.min(nx, maxX)) + 'px';
+    el.style.top  = Math.max(0, Math.min(ny, maxY)) + 'px';
+  }
+
+  /* ── MOUSE ── */
+  let ox = 0, oy = 0, sx = 0, sy = 0, mDragging = false;
+
+  hdr.addEventListener('mousedown', function(e) {
+    if (e.target.closest('[data-nodrag]')) return;
+    e.preventDefault();
+    mDragging = true;
+    if (onDragStart) onDragStart();
+    const r = el.getBoundingClientRect();
+    ox = r.left; oy = r.top; sx = e.clientX; sy = e.clientY;
+    hdr.style.cursor = 'grabbing';
+  });
+
+  document.addEventListener('mousemove', function(e) {
+    if (!mDragging) return;
+    _anchorAndMove(ox + e.clientX - sx, oy + e.clientY - sy);
+  });
+
+  document.addEventListener('mouseup', function() {
+    if (mDragging) { mDragging = false; hdr.style.cursor = 'grab'; }
+  });
+
+  /* ── TOUCH ── */
+  let tDragging = false, tId = null, tOx = 0, tOy = 0, tSx = 0, tSy = 0;
+
+  hdr.addEventListener('touchstart', function(e) {
+    if (e.target.closest('[data-nodrag]')) return;
+    if (e.touches.length !== 1) return;
+    e.stopPropagation(); // prevent card click / page scroll stealing the touch
+    const t = e.touches[0];
+    tDragging = true; tId = t.identifier;
+    if (onDragStart) onDragStart();
+    // getBoundingClientRect accounts for CSS translate — gives true screen coords
+    const r = el.getBoundingClientRect();
+    tOx = r.left; tOy = r.top; tSx = t.clientX; tSy = t.clientY;
+  }, { passive: false }); // passive:false so stopPropagation works and we can preventDefault later
+
+  document.addEventListener('touchmove', function(e) {
+    if (!tDragging) return;
+    let touch = null;
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      if (e.changedTouches[i].identifier === tId) { touch = e.changedTouches[i]; break; }
+    }
+    if (!touch) return;
+    e.preventDefault(); // block page scroll while dragging
+    _anchorAndMove(tOx + touch.clientX - tSx, tOy + touch.clientY - tSy);
+  }, { passive: false });
+
+  document.addEventListener('touchend', function(e) {
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      if (e.changedTouches[i].identifier === tId) { tDragging = false; tId = null; break; }
+    }
+  }, { passive: true });
+};
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   PEER COMPARISON OCTAGON ENGINE v3 (BULLETPROOF)
+══════════════════════════════════════════════════════ */
+(function() {
+  'use strict';
+
+  const PARAMS = {
+    mcap: { label:'Mkt Cap',    get: r => r._mcap,                                          fmt: v => { if(isNaN(v)||!v) return '—'; if(v>=100000) return (v/100000).toFixed(1)+'L'; if(v>=1000) return (v/1000).toFixed(1)+'K'; return Math.round(v)+''; } },
+    eps:  { label:'EPS Rank',   get: r => r._eps,                                           fmt: v => isNaN(v)?'—':Math.round(v)+'' },
+    rs:   { label:'Rel Str',    get: r => r._str,                                           fmt: v => isNaN(v)?'—':Math.round(v)+'' },
+    dur:  { label:'Durability', get: r => parseFloat(r['Trendlyne Durability Score'])||NaN, fmt: v => isNaN(v)?'—':Math.round(v)+'' },
+    val:  { label:'Valuation',  get: r => parseFloat(r['Trendlyne Valuation Score'])||NaN,  fmt: v => isNaN(v)?'—':Math.round(v)+'' },
+    roce: { label:'ROCE %',     get: r => r._roce,                                          fmt: v => isNaN(v)?'—':v.toFixed(1)+'%' }
+  };
+
+  const COLORS   = ['#3b82f6','#10b981','#f97316','#f43f5e','#eab308','#ec4899','#a78bfa','#f472b6'];
+  const SELF_CLR = '#22d3ee';
+
+  let _currentTicker = null, _currentInd = null, _currentParam = 'mcap';
+  let _peers = [];
+  
+  // Global states for hover logic
+  window._peerCloseTimer = null;
+  window._peerPinned = false;
+
+  /* ── Bulletproof Global Close Functions ── */
+  window.closePeerPopup = function() {
+    const p = document.getElementById('peer-popup');
+    if (p) {
+      p.style.display = 'none';
+      p.classList.remove('peer-visible');
+      // Reset inline position/transform so CSS centering takes effect on next open
+      p.style.left = '';
+      p.style.top  = '';
+      p.style.transform = '';
+    }
+    window.cancelPeerClose();
+    window._peerPinned = false;
+  };
+
+  window.schedulePeerClose = function() {
+    if (!window._peerPinned) {
+      window.cancelPeerClose();
+      window._peerCloseTimer = setTimeout(window.closePeerPopup, 300);
+    }
+  };
+
+  window.cancelPeerClose = function() {
+    if (window._peerCloseTimer) {
+      clearTimeout(window._peerCloseTimer);
+      window._peerCloseTimer = null;
+    }
+  };
+
+  /* ── Drag logic & Pinning (mouse + touch) ── */
+  let _dragInit = false;
+  function _initDrag() {
+    if (_dragInit) return;
+    _dragInit = true;
+    const el  = document.getElementById('peer-popup');
+    const hdr = document.getElementById('peer-popup-header');
+    if (!hdr || !el) return;
+
+    // Pin on any interaction inside popup (except close btn / peer-name links)
+    el.addEventListener('pointerdown', function(e) {
+      if (!e.target.closest('#peer-popup-close') && !e.target.closest('.peer-name')
+          && !e.target.closest('#peer-count-dec') && !e.target.closest('#peer-count-inc')) {
+        window._peerPinned = true;
+      }
+    }, { passive: true });
+
+    el.addEventListener('touchstart', function(e) {
+      if (!e.target.closest('#peer-popup-close') && !e.target.closest('.peer-name')) {
+        window._peerPinned = true;
+      }
+    }, { passive: true });
+
+    window._makeDraggable(el, hdr, function() { window._peerPinned = true; });
+  }
+
+  /* ── Click Outside to Close ── */
+  document.addEventListener('mousedown', function(e) {
+    const p = document.getElementById('peer-popup');
+    if (p && p.style.display !== 'none' && !p.contains(e.target) && !window._peerPinned) {
+      window.closePeerPopup();
+    }
+  }, true);
+
+  /* ── Public: show popup ── */
+  window.showPeerChart = function(event, ticker, industry) {
+    window.cancelPeerClose();
+    window._peerPinned = false;
+    event.stopPropagation();
+
+    if (!window._peerAllData || !window._peerAllData.length) return;
+
+    _currentTicker = ticker;
+    _currentInd    = industry;
+    // Save context so we can restore it when search is cleared
+    window._lastPeerTicker   = ticker;
+    window._lastPeerIndustry = industry;
+
+    // Use the live JS filter state — currentFilteredData is the array doFilter() just built.
+    // This correctly respects index filter (Nifty50 etc), search, mcap, all dropdowns.
+    const allIndustry = window._peerAllData.filter(r => r._ind === industry);
+    const filteredSet = window.currentFilteredData;
+    if (filteredSet && filteredSet.length > 0) {
+      const visibleTickers = new Set(filteredSet.map(r => String(r._ticker)));
+      visibleTickers.add(ticker); // always include self
+      _peers = allIndustry.filter(r => visibleTickers.has(String(r._ticker)));
+    } else {
+      _peers = allIndustry;
+    }
+
+    const p = document.getElementById('peer-popup');
+    if (!p) return;
+
+    const shortInd = industry.replace(/\s*(Industry|Sector|Group|Segment)$/i,'').slice(0,22);
+    const totalCount = _peers.length;
+    document.getElementById('peer-popup-title').textContent = '◈ ' + shortInd;
+    document.getElementById('peer-popup-count').textContent  = totalCount + ' co.';
+
+    refreshParam(_currentParam);
+    _wirePills(p);
+    updateActivePill(p, _currentParam);
+    _initDrag();
+
+    p.style.display = 'flex';
+    p.classList.add('peer-visible');
+
+    // On mobile let CSS handle centering (translate(-50%,-50%)); JS pixel coords would override it
+    if (window.innerWidth > 600) {
+      const popW = p.offsetWidth || 340, popH = p.offsetHeight || 480;
+      const left = Math.max(8, Math.round((window.innerWidth  - popW) / 2));
+      const top  = Math.max(8, Math.round((window.innerHeight - popH) / 2));
+      p.style.left      = left + 'px';
+      p.style.top       = top  + 'px';
+      p.style.transform = 'none';
+    } else {
+      // Clear any drag-set inline styles so CSS left:50%/top:50%/translate(-50%,-50%) takes full control
+      p.style.left      = '';
+      p.style.top       = '';
+      p.style.transform = '';
+    }
+  };
+
+  /* ── Pill wiring ── */
+  let _pillsWired = false;
+  function _wirePills(p) {
+    if (_pillsWired) return;
+    _pillsWired = true;
+    p.querySelectorAll('.peer-param-pill').forEach(pill => {
+      pill.addEventListener('click', function(e) {
+        e.stopPropagation();
+        window._peerPinned = true;
+        _currentParam = this.dataset.param;
+        updateActivePill(p, _currentParam);
+        refreshParam(_currentParam);
+      });
+      pill.addEventListener('mouseenter', function() {
+        updateActivePill(p, this.dataset.param);
+        refreshParam(this.dataset.param);
+      });
+      pill.addEventListener('mouseleave', function() {
+        updateActivePill(p, _currentParam);
+        refreshParam(_currentParam);
+      });
+    });
+  }
+
+  function updateActivePill(p, param) {
+    p.querySelectorAll('.peer-param-pill').forEach(pl => {
+      pl.classList.toggle('active', pl.dataset.param === param);
+    });
+  }
+
+  /* ── Data & Drawing ── */
+  function refreshParam(param) {
+    const pDef = PARAMS[param];
+    if (!pDef || !_peers.length) return;
+    const selfRow = _peers.find(r => r._ticker === _currentTicker);
+    const maxOthers = Math.max(2, (window._peerMaxCount || 8) - 1);
+    const others  = _peers
+      .filter(r => r._ticker !== _currentTicker && !isNaN(pDef.get(r)) && pDef.get(r) > 0)
+      .sort((a,b) => pDef.get(b) - pDef.get(a))
+      .slice(0, maxOthers);
+    const list = [...others];
+    if (selfRow) list.push(selfRow);
+    const vals = list.map(r => pDef.get(r) || 0);
+    const maxV = Math.max(...vals, 1);
+    drawOctagon(list, vals, maxV, selfRow?._ticker);
+    drawList(list, vals, maxV, pDef, selfRow?._ticker);
+  }
+
+  // Expose refresh callback for count change buttons
+  window._peerRefreshCurrent = function() { refreshParam(_currentParam); };
+
+  // Expose rebuild: re-compute _peers from current filtered set then redraw
+  window._peerRebuildPeers = function() {
+    if (!_currentTicker || !_currentInd) return;
+    const allIndustry = window._peerAllData ? window._peerAllData.filter(r => r._ind === _currentInd) : [];
+    const filteredSet = window.currentFilteredData;
+    if (filteredSet && filteredSet.length > 0) {
+      const visibleTickers = new Set(filteredSet.map(r => String(r._ticker)));
+      visibleTickers.add(_currentTicker);
+      _peers = allIndustry.filter(r => visibleTickers.has(String(r._ticker)));
+    } else {
+      _peers = allIndustry;
+    }
+    const shortInd = _currentInd.replace(/\s*(Industry|Sector|Group|Segment)$/i,'').slice(0,22);
+    document.getElementById('peer-popup-title').textContent = '◈ ' + shortInd;
+    document.getElementById('peer-popup-count').textContent  = _peers.length + ' co.';
+    refreshParam(_currentParam);
+  };
+
+  function drawOctagon(list, vals, maxV, selfTicker) {
+    const svg = document.getElementById('peer-octa-svg');
+    if (!svg) return;
+    const cx = 100, cy = 100, R = 78, rMin = 8;
+    const n   = Math.max(list.length, 3);
+
+    function ringPoints(frac) {
+      const rad = rMin + (R - rMin) * frac;
+      return Array.from({length: n}, (_, i) => {
+        const ang = (2 * Math.PI * i / n) - Math.PI / 2;
+        return [cx + rad * Math.cos(ang), cy + rad * Math.sin(ang)];
+      });
+    }
+
+    let html = '';
+    [0.25, 0.5, 0.75, 1.0].forEach(frac => {
+      const rp = ringPoints(frac);
+      const poly = rp.map(p => p[0].toFixed(2)+','+p[1].toFixed(2)).join(' ');
+      const outer = frac === 1.0;
+      html += `<polygon points="${poly}" fill="none" stroke="${outer?'rgba(34,211,238,0.22)':'rgba(255,255,255,0.06)'}" stroke-width="${outer?1.2:0.8}"/>`;
+    });
+
+    const outerPts = ringPoints(1.0);
+    for (let i = 0; i < n; i++) {
+      const [x2,y2] = outerPts[i];
+      html += `<line x1="${cx}" y1="${cy}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke="rgba(255,255,255,0.09)" stroke-width="0.8"/>`;
+      const ang    = (2*Math.PI*i/n) - Math.PI/2;
+      const lx     = cx + (R+14)*Math.cos(ang);
+      const ly     = cy + (R+14)*Math.sin(ang);
+      const tck    = list[i] ? String(list[i]._ticker).slice(0,7) : '';
+      const isSelf = list[i] && list[i]._ticker === selfTicker;
+      const cosA   = Math.cos(ang);
+      const anchor = cosA > 0.15 ? 'start' : cosA < -0.15 ? 'end' : 'middle';
+      html += `<text x="${lx.toFixed(2)}" y="${ly.toFixed(2)}" text-anchor="${anchor}" dominant-baseline="middle" font-family="Lexend,sans-serif" font-size="7" font-weight="${isSelf?700:500}" fill="${isSelf?'#22d3ee':'rgba(255,255,255,0.40)'}">${tck}</text>`;
+    }
+
+    const pts = list.map((r,i) => {
+      const ang  = (2*Math.PI*i/n) - Math.PI/2;
+      const frac = maxV > 0 ? Math.max(0.05, (vals[i]||0)/maxV) : 0.05;
+      const rad  = rMin + (R-rMin)*frac;
+      return { x: cx+rad*Math.cos(ang), y: cy+rad*Math.sin(ang), r, i };
+    });
+
+    if (pts.length > 1) {
+      html += `<polygon points="${pts.map(p=>p.x.toFixed(2)+','+p.y.toFixed(2)).join(' ')}" fill="rgba(34,211,238,0.10)" stroke="rgba(34,211,238,0.65)" stroke-width="1.5" stroke-linejoin="round"/>`;
+    }
+
+    pts.forEach((p,i) => {
+      const isSelf = p.r._ticker === selfTicker;
+      const clr    = isSelf ? SELF_CLR : COLORS[i % COLORS.length];
+      if (isSelf) html += `<circle cx="${p.x.toFixed(2)}" cy="${p.y.toFixed(2)}" r="${10}" fill="${clr}" opacity="0.18"/>`;
+      html += `<circle cx="${p.x.toFixed(2)}" cy="${p.y.toFixed(2)}" r="${isSelf?6.5:4.5}" fill="${clr}" stroke="#13131a" stroke-width="1.5"/>`;
+    });
+
+    svg.innerHTML = html;
+  }
+
+  function drawList(list, vals, maxV, pDef, selfTicker) {
+    const container = document.getElementById('peer-list');
+    if (!container) return;
+    const indexed = list.map((r,i) => ({r, v:vals[i], i}))
+      .sort((a,b) => (b.v||0)-(a.v||0));
+
+    container.innerHTML = indexed.map((item, rank) => {
+      const isSelf = item.r._ticker === selfTicker;
+      const clr    = isSelf ? SELF_CLR : COLORS[item.i % COLORS.length];
+      const barPct = maxV > 0 ? Math.max(3, (item.v||0)/maxV*100) : 3;
+      const name   = String(item.r._coName || item.r._ticker).slice(0, 20);
+      const ticker = item.r._ticker;
+      return `<div class="peer-item">
+        <span class="peer-rank">${rank+1}</span>
+        <span class="peer-color-dot" style="background:${clr}"></span>
+        <span class="peer-name${isSelf?' self':''}" title="Click to filter: ${item.r._coName}" onclick="(function(e){e.stopPropagation();_peerFilterByTicker('${ticker}');})(event)">${name}${isSelf?' ★':''}</span>
+        <div class="peer-bar-wrap"><div class="peer-bar-fill" style="width:${barPct.toFixed(1)}%;background:${clr}"></div></div>
+        <span class="peer-val">${pDef.fmt(item.v)}</span>
+      </div>`;
+    }).join('');
+  }
+
+  window._peerFilterByTicker = function(ticker) {
+    const inp = document.getElementById('search-input');
+    if (!inp) return;
+    inp.value = ticker;
+    const clrBtn = document.getElementById('clear-search-btn');
+    if (clrBtn) clrBtn.style.display = 'flex';
+    // Keep popup open and pinned — user closes manually with ✕
+    window._peerPinned = true;
+    if (typeof doFilter === 'function') doFilter();
+    // After filter, refresh the peer chart so it reflects the new filtered set
+    if (typeof window._peerRefreshCurrent === 'function') window._peerRefreshCurrent();
+  };
+
+})();
+</script>
+
 <script>
 /* ══════════════════════════════════════════════════════
    BLOCK EDGE NATIVE PULL-TO-REFRESH
@@ -4229,5 +4942,111 @@ window.resetAllAppFilters = function() {
   }, { passive: false }); // passive: false is REQUIRED to use e.preventDefault()
 })();
 </script>
+    
+
+                <script>// Write JavaScript here</script>
+<script>
+/* ══════════════════════════════════════════════════════
+   PATCH 1: Make static Mcap boxes clickable on mobile
+   (Dynamic cards via buildCard already have onclick injected above)
+══════════════════════════════════════════════════════ */
+(function patchMcapBoxes() {
+  function applyPatch() {
+    // Find all Mcap iscore boxes that have showPeerChart in onmouseenter but no onclick
+    document.querySelectorAll('.iscore.w-wide[title="View Peer Comparison"]').forEach(function(el) {
+      if (el.getAttribute('data-peer-patched')) return;
+      el.setAttribute('data-peer-patched', '1');
+      // Extract ticker & industry from onmouseenter attribute
+      const me = el.getAttribute('onmouseenter') || '';
+      const m = me.match(/showPeerChart\(event\s*,\s*'([^']+)'\s*,\s*'([^']*)'\s*\)/);
+      if (!m) return;
+      const ticker = m[1], industry = m[2];
+      el.onclick = function(e) { e.stopPropagation(); showPeerChart(e, ticker, industry); };
+      el.ontouchstart = function(e) { e.stopPropagation(); showPeerChart(e, ticker, industry); };
+    });
+  }
+  // Run on load and after any dynamic renders
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyPatch);
+  } else {
+    applyPatch();
+  }
+  // Re-run after dynamic card renders via MutationObserver
+  const obs = new MutationObserver(function(muts) {
+    for (const m of muts) {
+      if (m.addedNodes.length) { applyPatch(); break; }
+    }
+  });
+  const cards = document.getElementById('cards');
+  if (cards) obs.observe(cards, { childList: true, subtree: true });
+  setTimeout(applyPatch, 1200);
+})();
+
+/* ══════════════════════════════════════════════════════
+   PATCH 2: Company count selector in peer popup
+   Default = 8 (7 others + self), user can increase
+══════════════════════════════════════════════════════ */
+(function patchPeerCount() {
+  // Inject the count control into the peer popup header after it's in the DOM
+  function injectCountControl() {
+    const header = document.getElementById('peer-popup-header');
+    if (!header || document.getElementById('peer-count-ctrl')) return;
+
+    const ctrl = document.createElement('div');
+    ctrl.id = 'peer-count-ctrl';
+    ctrl.style.cssText = 'display:flex;align-items:center;gap:4px;flex-shrink:0;';
+    ctrl.innerHTML = `
+      <span style="font-size:8px;color:rgba(34,211,238,0.6);font-weight:700;letter-spacing:0.04em;white-space:nowrap;">SHOW</span>
+      <button id="peer-count-dec" style="width:18px;height:18px;border-radius:4px;background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.25);color:#22d3ee;font-size:11px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;font-family:'Lexend',sans-serif;flex-shrink:0;">−</button>
+      <span id="peer-count-val" style="font-size:10px;font-weight:800;color:#22d3ee;min-width:16px;text-align:center;font-family:'Lexend',sans-serif;">8</span>
+      <button id="peer-count-inc" style="width:18px;height:18px;border-radius:4px;background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.25);color:#22d3ee;font-size:11px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;font-family:'Lexend',sans-serif;flex-shrink:0;">+</button>
+    `;
+
+    // Insert before close button
+    const closeBtn = document.getElementById('peer-popup-close');
+    if (closeBtn) header.insertBefore(ctrl, closeBtn);
+    else header.appendChild(ctrl);
+
+    const decBtn = document.getElementById('peer-count-dec');
+    const incBtn = document.getElementById('peer-count-inc');
+    const valEl  = document.getElementById('peer-count-val');
+
+    decBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const cur = window._peerMaxCount || 8;
+      if (cur <= 3) return;
+      window._peerMaxCount = cur - 1;
+      valEl.textContent = window._peerMaxCount;
+      if (typeof window._peerRefreshCurrent === 'function') window._peerRefreshCurrent();
+    });
+    incBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const cur = window._peerMaxCount || 8;
+      window._peerMaxCount = cur + 1;
+      valEl.textContent = window._peerMaxCount;
+      if (typeof window._peerRefreshCurrent === 'function') window._peerRefreshCurrent();
+    });
+  }
+
+  window._peerMaxCount = 8;
+
+  // Observe peer-popup appearing
+  const peerPopup = document.getElementById('peer-popup');
+  if (peerPopup) {
+    const obs = new MutationObserver(function() {
+      if (peerPopup.classList.contains('peer-visible') || peerPopup.style.display !== 'none') {
+        injectCountControl();
+        // Sync display value
+        const valEl = document.getElementById('peer-count-val');
+        if (valEl) valEl.textContent = window._peerMaxCount || 8;
+      }
+    });
+    obs.observe(peerPopup, { attributes: true, attributeFilter: ['class','style'] });
+    injectCountControl(); // try immediately too
+  }
+  setTimeout(injectCountControl, 800);
+})();
+</script>
+            
+        
     </body>
-</html>
